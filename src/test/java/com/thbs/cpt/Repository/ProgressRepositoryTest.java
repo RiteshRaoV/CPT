@@ -95,4 +95,46 @@ public class ProgressRepositoryTest {
         assertEquals(topicId, result[2]);
         assertEquals(expectedTopicProgress, result[3]);
     }
+
+/// new test cases 
+@Test
+    void testFindOvreallProgressOfUsersInABatch() {
+        // Given
+        int batchId = 1;
+        double expectedBatchProgress = 85.0;
+
+        // Mock the repository method call to return sample data
+        List<Object[]> sampleData = new ArrayList<>();
+        sampleData.add(new Object[] { expectedBatchProgress });
+        when(progressRepository.findOvreallProgressOfUsersInABatch(batchId)).thenReturn(sampleData);
+
+        // When
+        List<Object[]> actualProgressList = progressRepository.findOvreallProgressOfUsersInABatch(batchId);
+
+        // Then
+        assertEquals(1, actualProgressList.size());
+        Object[] result = actualProgressList.get(0);
+        assertEquals(expectedBatchProgress, result[0]);
+    }
+
+    @Test
+    void testFindOverallBatchProgress() {
+        // Given
+        int batchId = 1;
+        double expectedBatchCompletionProgress = 90.0;
+
+        // Mock the repository method call to return sample data
+        List<Object[]> sampleData = new ArrayList<>();
+        sampleData.add(new Object[] { expectedBatchCompletionProgress });
+        when(progressRepository.findOverallBatchProgress(batchId)).thenReturn(sampleData);
+
+        // When
+        List<Object[]> actualProgressList = progressRepository.findOverallBatchProgress(batchId);
+
+        // Then
+        assertEquals(1, actualProgressList.size());
+        Object[] result = actualProgressList.get(0);
+        assertEquals(expectedBatchCompletionProgress, result[0]);
+    }
+
 }

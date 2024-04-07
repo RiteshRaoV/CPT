@@ -16,5 +16,13 @@ public class Progress {
     private int batchId;
     private int resourceId;
     private double completionPercentage;
+    public Progress() {
+    }
+
+    public Progress(long userId, int resourceId, double completionPercentage) {
+        this.userId = userId;
+        this.resourceId = resourceId;
+        this.completionPercentage = completionPercentage;
+    }
     
 }

@@ -15,9 +15,12 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
+import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
+import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Repository.ProgressRepository;
 
 @ExtendWith(SpringExtension.class)
@@ -89,4 +92,46 @@ public class UserProgressServiceTest {
         assertEquals(userId, result.getUserId());
         assertEquals(expectedTopicProgress, result.getTopicProgress());
     }
+
+
+//// batch test case
+@Test
+    void testCalculateBatchProgress() {
+        // Given
+        int batchId = 1;
+        double expectedBatchProgress = 50.0;
+
+        // Mock the repository method call to return sample data
+        List<Object[]> sampleData = new ArrayList<>();
+        sampleData.add(new Object[] { expectedBatchProgress });
+        when(progressRepository.findOverallBatchProgress(batchId)).thenReturn(sampleData);
+
+        // When
+        BatchProgressDTO result = userProgressService.calculateBatchProgress(batchId);
+
+        // Then
+        assertEquals(batchId, result.getBatchId());
+        assertEquals(expectedBatchProgress, result.getBatchProgress());
+    }
+    /// resouce id test cases
+    @Test
+void testCalculateResourceProgressForUser() {
+    // Given
+    long userId = 1L;
+    int resourceId = 1;
+    double expectedResourceProgress = 50.0;
+
+    // Mock the repository method call to return sample data
+    when(progressRepository.findByUserIdAndResourceId(userId, resourceId)).thenReturn(new Progress(userId, resourceId, expectedResourceProgress));
+
+    // When
+    UserResourceProgressDTO result = userProgressService.calculateResourceProgressForUser(userId, resourceId);
+
+    // Then
+    assertEquals(userId, result.getUserId());
+    assertEquals(expectedResourceProgress, result.getResourceProgress());
+}
+
+
+
 }

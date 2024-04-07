@@ -19,8 +19,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
+import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Service.UserProgressService;
 
@@ -99,5 +101,46 @@ public class UserProgressControllerTest {
         UserTopicProgressDTO actualProgress = objectMapper.readValue(result.getResponse().getContentAsString(), UserTopicProgressDTO.class);
         assertEquals(expectedProgress.getUserId(), actualProgress.getUserId());
         assertEquals(expectedProgress.getTopicProgress(), actualProgress.getTopicProgress());
+    }
+    /// test case for resouce 
+    @Test
+    void testCalculateResourceProgress_Success() throws Exception {
+        // Given
+        long userId = 1L;
+        int resourceId = 1;
+        UserResourceProgressDTO expectedProgress = new UserResourceProgressDTO(userId, 50.0);
+        when(userProgressService.calculateResourceProgressForUser(userId, resourceId)).thenReturn(expectedProgress);
+
+        // When
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/{userId}/resource/{resourceId}", userId, resourceId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        // Then
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserResourceProgressDTO actualProgress = objectMapper.readValue(result.getResponse().getContentAsString(), UserResourceProgressDTO.class);
+        assertEquals(expectedProgress.getUserId(), actualProgress.getUserId());
+        assertEquals(expectedProgress.getResourceProgress(), actualProgress.getResourceProgress());
+    }
+    /// batch progress test cases
+    @Test
+    void testCalculateBatchProgress_Success() throws Exception {
+        // Given
+        int batchId = 1;
+        BatchProgressDTO expectedProgress = new BatchProgressDTO(batchId, 90.0);
+        when(userProgressService.calculateBatchProgress(batchId)).thenReturn(expectedProgress);
+
+        // When
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/batch/{batchId}", batchId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        // Then
+        ObjectMapper objectMapper = new ObjectMapper();
+        BatchProgressDTO actualProgress = objectMapper.readValue(result.getResponse().getContentAsString(), BatchProgressDTO.class);
+        assertEquals(expectedProgress.getBatchId(), actualProgress.getBatchId());
+        assertEquals(expectedProgress.getBatchProgress(), actualProgress.getBatchProgress());
     }
 }
