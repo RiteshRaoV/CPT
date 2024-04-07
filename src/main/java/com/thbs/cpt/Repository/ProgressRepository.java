@@ -51,4 +51,6 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
           " GROUP BY "+
           " p.user_id, lr.course_id, lr.topic_id",nativeQuery = true)
      List<Object[]> findTopicProgressByCourseAndUserId(Long userId, int courseId, int topicId);
+
+    Progress findByUserIdAndResourceId(long userId, int resourceId);
 }

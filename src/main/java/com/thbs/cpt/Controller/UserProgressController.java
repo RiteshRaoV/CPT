@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
+import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Service.UserProgressService;
 
@@ -29,20 +30,34 @@ public class UserProgressController {
     }
 
     @GetMapping("/{userId}/course/{CourseId}")
-    public ResponseEntity<UserCourseProgressDTO> calculateOverallCourseProgress(@PathVariable long userId,@PathVariable int CourseId) {
-        UserCourseProgressDTO progress = userProgressService.calculateCourseProgressForUser(userId,CourseId);
+    public ResponseEntity<UserCourseProgressDTO> calculateOverallCourseProgress(@PathVariable long userId,
+            @PathVariable int CourseId) {
+        UserCourseProgressDTO progress = userProgressService.calculateCourseProgressForUser(userId, CourseId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
     @GetMapping("/{userId}/course/{CourseId}/topic/{TopicId}")
-    public ResponseEntity<UserTopicProgressDTO> calculateOverallTopicProgress(@PathVariable long userId,@PathVariable int CourseId,@PathVariable int TopicId){
-        UserTopicProgressDTO progress=userProgressService.calculateUserTopicProgress(userId,CourseId,TopicId);
+    public ResponseEntity<UserTopicProgressDTO> calculateOverallTopicProgress(@PathVariable long userId,
+            @PathVariable int CourseId, @PathVariable int TopicId) {
+        UserTopicProgressDTO progress = userProgressService.calculateUserTopicProgress(userId, CourseId, TopicId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
         } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{userId}/resource/{resourceId}")
+    public ResponseEntity<UserResourceProgressDTO> calculateResourceProgress(@PathVariable int resourceId,
+            @PathVariable long userId) {
+        UserResourceProgressDTO progress = userProgressService.calculateResourceProgressForUser(userId, resourceId);
+        if (progress != null) {
+            return ResponseEntity.ok(progress);
+        }else{
             return ResponseEntity.notFound().build();
         }
     }

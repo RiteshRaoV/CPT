@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
+import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
+import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Repository.ProgressRepository;
 
 @Service
@@ -53,6 +55,11 @@ public class UserProgressService {
             }
         }
         return null;
+    }
+
+    public UserResourceProgressDTO calculateResourceProgressForUser(long userId, int resourceId) {
+        Progress progress = progressRepository.findByUserIdAndResourceId(userId,resourceId);
+        return new UserResourceProgressDTO(userId, progress.getCompletionPercentage());
     }
     
 }
