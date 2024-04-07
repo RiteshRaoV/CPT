@@ -35,22 +35,45 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
                "GROUP BY tp.course_id, tp.user_id", nativeQuery = true)
      List<Object[]> findCourseProgressByUserAndCourse(Long userId, int courseId);
 
-     @Query(value = "SELECT"+ 
-          " p.user_id,lr.course_id,lr.topic_id,"+
-          " AVG(p.completion_percentage) AS progress"+
-          " FROM"+ 
-          " progress p"+
-          " JOIN"+ 
-          " resource r ON p.resource_id = r.resource_id"+
-          " JOIN "+
-          " Learning_resource lr ON r.learning_resource_id = lr.learning_resource_id"+
-          " WHERE"+ 
-          " p.user_id = :userId "+
-          " AND lr.course_id = :courseId "+
-          " AND lr.topic_id = :topicId "+
-          " GROUP BY "+
-          " p.user_id, lr.course_id, lr.topic_id",nativeQuery = true)
+     @Query(value = "SELECT" +
+               " p.user_id,lr.course_id,lr.topic_id," +
+               " AVG(p.completion_percentage) AS progress" +
+               " FROM" +
+               " progress p" +
+               " JOIN" +
+               " resource r ON p.resource_id = r.resource_id" +
+               " JOIN " +
+               " Learning_resource lr ON r.learning_resource_id = lr.learning_resource_id" +
+               " WHERE" +
+               " p.user_id = :userId " +
+               " AND lr.course_id = :courseId " +
+               " AND lr.topic_id = :topicId " +
+               " GROUP BY " +
+               " p.user_id, lr.course_id, lr.topic_id", nativeQuery = true)
      List<Object[]> findTopicProgressByCourseAndUserId(Long userId, int courseId, int topicId);
 
-    Progress findByUserIdAndResourceId(long userId, int resourceId);
+     @Query(value = "SELECT user_id, AVG(course_progress) AS overall_progress" +
+               " FROM (" +
+               "    SELECT lr.course_id, p.user_id, AVG(p.completion_percentage) AS course_progress" +
+               "    FROM Progress p" +
+               "    JOIN Resource r ON p.resource_id = r.resource_id" +
+               "    JOIN learning_resource lr ON r.learning_resource_id = lr.learning_resource_id" +
+               "    WHERE p.batch_id = 1" +
+               "    GROUP BY lr.course_id, p.user_id" +
+               ") AS cp" +
+               "GROUP BY user_id;", nativeQuery = true)
+     List<Object[]> findOvreallProgressOfUsersInABatch(int batchId);
+
+     @Query(value = "SELECT AVG(overall_progress) AS batch_completion_progress " +
+               "FROM (" +
+               "    SELECT AVG(p.completion_percentage) AS overall_progress " +
+               "    FROM Progress p " +
+               "    JOIN Resource r ON p.resource_id = r.resource_id " +
+               "    JOIN learning_resource lr ON r.learning_resource_id = lr.learning_resource_id " +
+               "    WHERE p.batch_id = :batchId " +
+               "    GROUP BY p.user_id" +
+               ") AS batch_progress", nativeQuery = true)
+     List<Object[]> findOverallBatchProgress(int batchId);
+
+     Progress findByUserIdAndResourceId(long userId, int resourceId);
 }

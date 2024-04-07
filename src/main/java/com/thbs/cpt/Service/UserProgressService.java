@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -53,6 +54,16 @@ public class UserProgressService {
             double topicProgress=(double) result[3]; 
             return new UserTopicProgressDTO(userIdFromQuery,topicProgress);
             }
+        }
+        return null;
+    }
+
+    public BatchProgressDTO calculateBatchProgress(int batchId){
+        List<Object[]> results=progressRepository.findOverallBatchProgress(batchId);
+        if(results!=null && !results.isEmpty()){
+            Object[] result=results.get(0);
+            double batchProgress=(double) result[0];
+            return new BatchProgressDTO(batchId, batchProgress);
         }
         return null;
     }
