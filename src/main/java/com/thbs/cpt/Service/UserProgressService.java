@@ -11,7 +11,9 @@ import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Entity.Progress;
+import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Exception.CourseNotFoundException;
+import com.thbs.cpt.Exception.ResourceIdNotFoundException;
 import com.thbs.cpt.Exception.TopicIdNotFoundException;
 import com.thbs.cpt.Exception.UserNotFoundException;
 import com.thbs.cpt.Repository.ProgressRepository;
@@ -73,19 +75,23 @@ public class UserProgressService {
 ///// batch 
 
 
-    public BatchProgressDTO calculateBatchProgress(int batchId){
-        List<Object[]> results=progressRepository.findOverallBatchProgress(batchId);
-        if(results!=null && !results.isEmpty()){
-            Object[] result=results.get(0);
-            double batchProgress=(double) result[0];
-            return new BatchProgressDTO(batchId, batchProgress);
-        }
-        return null;
+public BatchProgressDTO calculateBatchProgress(int batchId) throws BatchIdNotFoundException {
+    List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
+    if (results != null && !results.isEmpty()) {
+        Object[] result = results.get(0);
+        double batchProgress = (double) result[0];
+        return new BatchProgressDTO(batchId, batchProgress);
     }
+    throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
+}
 
-    public UserResourceProgressDTO calculateResourceProgressForUser(long userId, int resourceId) {
-        Progress progress = progressRepository.findByUserIdAndResourceId(userId,resourceId);
-        return new UserResourceProgressDTO(userId, progress.getCompletionPercentage());
-    }
+public UserResourceProgressDTO calculateResourceProgressForUser(long userId, int resourceId)
+throws UserNotFoundException, ResourceIdNotFoundException {
+Progress progress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
+if (progress != null) {
+return new UserResourceProgressDTO(userId, progress.getCompletionPercentage());
+}
+throw new ResourceIdNotFoundException("Resource with ID " + resourceId + " not found for user " + userId);
+}
     
 }
