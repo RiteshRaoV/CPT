@@ -80,6 +80,6 @@ public class UserProgressController {
     // @GetMapping("/batches")
     // public ResponseEntity<BatchProgressDTO> calculateAllBatchProgress(){
     //     List<BatchProgressDTO> list=userProgressService.calculateAllBatchProgress();
-
+        
     // }
 }

@@ -33,7 +33,7 @@ public class UserProgressService {
                 double overallProgress = (double) result[1];
                 return new UserProgressDTO(userIdFromQuery, overallProgress);
             }
-        }else{
+        } else {
             throw new UserNotFoundException("User with ID " + userId + " not found.");
         }
         return null;
@@ -74,26 +74,30 @@ public class UserProgressService {
             throw new CourseNotFoundException("Course with ID " + courseId + " not found.");
         }
     }
-///// batch 
+    ///// batch
 
-
-public BatchProgressDTO calculateBatchProgress(int batchId) throws BatchIdNotFoundException {
-    List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
-    if (results != null && !results.isEmpty()) {
-        Object[] result = results.get(0);
-        double batchProgress = (double) result[0];
-        return new BatchProgressDTO(batchId, batchProgress);
+    public BatchProgressDTO calculateBatchProgress(int batchId) throws BatchIdNotFoundException {
+        List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
+        if (results != null && !results.isEmpty()) {
+            Object[] result = results.get(0);
+            double batchProgress = (double) result[0];
+            return new BatchProgressDTO(batchId, batchProgress);
+        }
+        throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
     }
-    throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
-}
 
-public UserResourceProgressDTO calculateResourceProgressForUser(long userId, int resourceId)
-throws UserNotFoundException, ResourceIdNotFoundException {
-Progress progress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
-if (progress != null) {
-return new UserResourceProgressDTO(userId, progress.getCompletionPercentage());
-}
-throw new ResourceIdNotFoundException("Resource with ID " + resourceId + " not found for user " + userId);
-}
-    
+    public UserResourceProgressDTO calculateResourceProgressForUser(long userId, int resourceId)
+            throws UserNotFoundException, ResourceIdNotFoundException {
+        Progress progress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
+        if (progress != null) {
+            return new UserResourceProgressDTO(userId, progress.getCompletionPercentage());
+        }
+        throw new ResourceIdNotFoundException("Resource with ID " + resourceId + " not found for user " + userId);
+    }
+
+    public List<BatchProgressDTO> calculateAllBatchProgress() {
+        
+        throw new UnsupportedOperationException("Unimplemented method 'calculateAllBatchProgress'");
+    }
+
 }

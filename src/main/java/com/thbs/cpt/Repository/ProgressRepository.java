@@ -58,7 +58,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
                "    FROM Progress p" +
                "    JOIN Resource r ON p.resource_id = r.resource_id" +
                "    JOIN learning_resource lr ON r.learning_resource_id = lr.learning_resource_id" +
-               "    WHERE p.batch_id = 1" +
+               "    WHERE p.batch_id = :batchId" +
                "    GROUP BY lr.course_id, p.user_id" +
                ") AS cp" +
                "GROUP BY user_id;", nativeQuery = true)
