@@ -33,8 +33,10 @@ public class UserProgressService {
                 double overallProgress = (double) result[1];
                 return new UserProgressDTO(userIdFromQuery, overallProgress);
             }
+        }else{
+            throw new UserNotFoundException("User with ID " + userId + " not found.");
         }
-        throw new UserNotFoundException("User with ID " + userId + " not found.");
+        return null;
     }
 
     public UserCourseProgressDTO calculateCourseProgressForUser(Long userId, int courseId)

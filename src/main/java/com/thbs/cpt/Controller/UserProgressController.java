@@ -1,5 +1,7 @@
 package com.thbs.cpt.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -74,4 +76,10 @@ public class UserProgressController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // @GetMapping("/batches")
+    // public ResponseEntity<BatchProgressDTO> calculateAllBatchProgress(){
+    //     List<BatchProgressDTO> list=userProgressService.calculateAllBatchProgress();
+
+    // }
 }
