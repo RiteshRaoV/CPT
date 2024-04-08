@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
+import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -126,6 +127,20 @@ public class UserProgressService {
         }
 
         return batchProgressList;
+    }
+
+    
+    public List<UserBatchProgressDTO> calculateOverallBatchProgress(Long batchId) {
+        List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
+        List<UserBatchProgressDTO> progressList = new ArrayList<>();
+        for (Object[] result : results) {
+            if (result[0] != null && result[1] != null) {
+                Long userId = (Long) result[0];
+                double overallProgress = (double) result[1];
+                progressList.add(new UserBatchProgressDTO(userId, overallProgress));
+            }
+        }
+        return progressList;
     }
     
     

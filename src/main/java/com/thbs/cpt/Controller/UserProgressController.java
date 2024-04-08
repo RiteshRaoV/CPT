@@ -1,7 +1,6 @@
 package com.thbs.cpt.Controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,6 +15,7 @@ import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.CourseIdsRequest;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
+import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -92,11 +92,15 @@ public class UserProgressController {
         }
     }
 
-    // @GetMapping("/batches")
-    // public ResponseEntity<BatchProgressDTO> calculateAllBatchProgress(){
-    // List<BatchProgressDTO> list=userProgressService.calculateAllBatchProgress();
-
-    // }
+    @GetMapping("/allusers/{batchId}")
+    public ResponseEntity<List<UserBatchProgressDTO>> getOverallBatchProgress(@PathVariable Long batchId) {
+        List<UserBatchProgressDTO> progressList = userProgressService.calculateOverallBatchProgress(batchId);
+        if (!progressList.isEmpty()) {
+            return ResponseEntity.ok(progressList);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @PostMapping("/courses")
     public ResponseEntity<List<UserAllCourseProgressDTO>> calculateOverallCourseProgress(
