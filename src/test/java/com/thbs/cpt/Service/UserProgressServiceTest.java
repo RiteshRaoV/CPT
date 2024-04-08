@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.thbs.cpt.DTO.BatchProgressDTO;
+import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -132,6 +135,57 @@ void testCalculateResourceProgressForUser() {
     assertEquals(expectedResourceProgress, result.getResourceProgress());
 }
 
+/// post 
+@Test
+void testCalculateCourseProgressForUserq() {
+    // Given
+    long userId = 1L;
+    List<Integer> courseIds = Arrays.asList(1, 2, 3);
+    
+    // Sample data
+    List<Object[]> sampleData = new ArrayList<>();
+    sampleData.add(new Object[] { userId, 1, 70.0 });
+    sampleData.add(new Object[] { userId, 2, 80.0 });
+    sampleData.add(new Object[] { userId, 3, 90.0 });
+    
+    // Mock the repository method call to return sample data
+    when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds)).thenReturn(sampleData);
+    
+    // When
+    List<UserAllCourseProgressDTO> result = userProgressService.calculateCourseProgressForUser(userId, courseIds);
+    
+    // Then
+    assertEquals(3, result.size());
+    
+    // Check the values of each course progress DTO
+    assertEquals(userId, result.get(0).getUserId());
+    assertEquals(1, result.get(0).getCourseId());
+    assertEquals(70.0, result.get(0).getOverallProgress());
+    
+    assertEquals(userId, result.get(1).getUserId());
+    assertEquals(2, result.get(1).getCourseId());
+    assertEquals(80.0, result.get(1).getOverallProgress());
+    
+    assertEquals(userId, result.get(2).getUserId());
+    assertEquals(3, result.get(2).getCourseId());
+    assertEquals(90.0, result.get(2).getOverallProgress());
+}
+
+@Test
+void testCalculateCourseProgressForUser_EmptyResult() {
+    // Given
+    long userId = 1L;
+    List<Integer> courseIds = Arrays.asList(1, 2, 3);
+    
+    // Mock the repository method call to return an empty list
+    when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds)).thenReturn(Collections.emptyList());
+    
+    // When
+    List<UserAllCourseProgressDTO> result = userProgressService.calculateCourseProgressForUser(userId, courseIds);
+    
+    // Then
+    assertEquals(0, result.size());
+}
 
 
 }

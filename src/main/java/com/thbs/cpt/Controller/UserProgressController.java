@@ -1,14 +1,21 @@
 package com.thbs.cpt.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thbs.cpt.DTO.BatchProgressDTO;
+import com.thbs.cpt.DTO.CourseIdsRequest;
+import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -60,18 +67,41 @@ public class UserProgressController {
         UserResourceProgressDTO progress = userProgressService.calculateResourceProgressForUser(userId, resourceId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
-        }else{
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/batch/{batchId}")
-    public ResponseEntity<BatchProgressDTO> calculateBatchProgress(@PathVariable int batchId){
-        BatchProgressDTO progress=userProgressService.calculateBatchProgress(batchId);
-        if(progress!=null){
+    public ResponseEntity<BatchProgressDTO> calculateBatchProgress(@PathVariable int batchId) {
+        BatchProgressDTO progress = userProgressService.calculateBatchProgress(batchId);
+        if (progress != null) {
             return ResponseEntity.ok(progress);
-        }else{
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // @GetMapping("/batches")
+    // public ResponseEntity<BatchProgressDTO> calculateAllBatchProgress(){
+    // List<BatchProgressDTO> list=userProgressService.calculateAllBatchProgress();
+
+    // }
+
+    @PostMapping("/courses")
+    public ResponseEntity<List<UserAllCourseProgressDTO>> calculateOverallCourseProgress(
+            @RequestBody CourseIdsRequest request) {
+        long userId = request.getUserId(); // Get userId from request body
+        List<Integer> courseIds = request.getCourseIds();
+        List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId,
+                courseIds);
+        if (!progressList.isEmpty()) {
+            return ResponseEntity.ok(progressList);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    
+
 }

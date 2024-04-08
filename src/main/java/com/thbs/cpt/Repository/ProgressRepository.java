@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.thbs.cpt.Entity.Progress;
@@ -58,7 +59,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
                "    FROM Progress p" +
                "    JOIN Resource r ON p.resource_id = r.resource_id" +
                "    JOIN learning_resource lr ON r.learning_resource_id = lr.learning_resource_id" +
-               "    WHERE p.batch_id = 1" +
+               "    WHERE p.batch_id = :batchId" +
                "    GROUP BY lr.course_id, p.user_id" +
                ") AS cp" +
                "GROUP BY user_id;", nativeQuery = true)
@@ -74,6 +75,19 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
                "    GROUP BY p.user_id" +
                ") AS batch_progress", nativeQuery = true)
      List<Object[]> findOverallBatchProgress(int batchId);
+
+     @Query(value = "SELECT tp.user_id, tp.course_id, AVG(tp.topic_progress) AS course_progress " +
+               "FROM (" +
+               "   SELECT lr.course_id, p.user_id, AVG(p.completion_percentage) AS topic_progress " +
+               "   FROM Progress p " +
+               "   JOIN Resource r ON p.resource_id = r.resource_id " +
+               "   JOIN Learning_Resource lr ON r.learning_resource_id = lr.learning_resource_id " +
+               "   WHERE p.user_id = :userId AND lr.course_id IN :courseIds " +
+               "   GROUP BY lr.course_id, p.user_id" +
+               ") AS tp " +
+               "GROUP BY tp.user_id, tp.course_id", nativeQuery = true)
+     List<Object[]> findCourseProgressByUserAndCourses(@Param("userId") Long userId,
+               @Param("courseIds") List<Integer> courseIds);
 
      Progress findByUserIdAndResourceId(long userId, int resourceId);
 }
