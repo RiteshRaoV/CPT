@@ -1,11 +1,13 @@
 package com.thbs.cpt.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thbs.cpt.DTO.BatchProgressDTO;
+import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -96,5 +98,21 @@ public class UserProgressService {
         }
         throw new ResourceIdNotFoundException("Resource with ID " + resourceId + " not found for user " + userId);
     }
+
+    public List<UserAllCourseProgressDTO> calculateCourseProgressForUser(Long userId, List<Integer> courseIds) {
+        List<Object[]> results = progressRepository.findCourseProgressByUserAndCourses(userId, courseIds);
+        List<UserAllCourseProgressDTO> progressList = new ArrayList<>();
+        for (Object[] result : results) {
+            if (result[0] != null && result[1] != null && result[2] != null) {
+                long userIdFromQuery = (long) result[0];
+                int courseId = (int) result[1];
+                double overallProgress = (double) result[2];
+                progressList.add(new UserAllCourseProgressDTO(userIdFromQuery, courseId, overallProgress));
+            }
+        }
+        return progressList;
+    }
+    
+    
 
 }
