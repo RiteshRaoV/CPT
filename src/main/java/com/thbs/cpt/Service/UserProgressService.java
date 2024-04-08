@@ -78,7 +78,7 @@ public class UserProgressService {
             throw new CourseNotFoundException("Topic with ID " + topicId + " not found.");
         }
     }
-///// batch
+    ///// batch
 
     public BatchProgressDTO calculateBatchProgress(int batchId) throws BatchIdNotFoundException {
         List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
@@ -115,7 +115,6 @@ public class UserProgressService {
         return progressList;
     }
 
-    
     public List<BatchWiseProgressDTO> findBatchwiseProgress() {
         List<Object[]> results = progressRepository.findBatchwiseProgress();
         List<BatchWiseProgressDTO> batchProgressList = new ArrayList<>();
@@ -129,20 +128,21 @@ public class UserProgressService {
         return batchProgressList;
     }
 
-    
-    public List<UserBatchProgressDTO> calculateOverallBatchProgress(Long batchId) {
+    public List<UserBatchProgressDTO> calculateOverallBatchProgress(Long batchId) throws BatchIdNotFoundException {
         List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
-        List<UserBatchProgressDTO> progressList = new ArrayList<>();
-        for (Object[] result : results) {
-            if (result[0] != null && result[1] != null) {
-                Long userId = (Long) result[0];
-                double overallProgress = (double) result[1];
-                progressList.add(new UserBatchProgressDTO(userId, overallProgress));
+        if (results != null && !results.isEmpty()) {
+            List<UserBatchProgressDTO> progressList = new ArrayList<>();
+            for (Object[] result : results) {
+                if (result[0] != null && result[1] != null) {
+                    Long userId = (Long) result[0];
+                    double overallProgress = (Double) result[1];
+                    progressList.add(new UserBatchProgressDTO(userId, overallProgress));
+                }
             }
+            return progressList;
+        } else {
+            throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
         }
-        return progressList;
     }
-    
-    
 
 }
