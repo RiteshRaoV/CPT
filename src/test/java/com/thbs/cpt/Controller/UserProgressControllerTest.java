@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thbs.cpt.DTO.BatchProgressDTO;
+import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.CourseIdsRequest;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
@@ -31,6 +32,7 @@ import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Service.UserProgressService;
+
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(UserProgressController.class)
@@ -183,6 +185,32 @@ public class UserProgressControllerTest {
         }
     }
     
-
+   /// batch wis
+   @Test
+   void testCalculateBatchwiseProgress_Success() throws Exception {
+       // Given
+       List<BatchWiseProgressDTO> expectedProgressList = new ArrayList<>();
+       expectedProgressList.add(new BatchWiseProgressDTO(1, 90.0));
+       expectedProgressList.add(new BatchWiseProgressDTO(2, 85.0));
+       when(userProgressService.findBatchwiseProgress()).thenReturn(expectedProgressList);
+   
+       // When
+       MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/batchwise")
+               .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(MockMvcResultMatchers.status().isOk())
+               .andReturn();
+   
+       // Then
+       ObjectMapper objectMapper = new ObjectMapper();
+       List<BatchWiseProgressDTO> actualProgressList = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<BatchWiseProgressDTO>>() {});
+       assertEquals(expectedProgressList.size(), actualProgressList.size());
+       for (int i = 0; i < expectedProgressList.size(); i++) {
+           BatchWiseProgressDTO expectedProgress = expectedProgressList.get(i);
+           BatchWiseProgressDTO actualProgress = actualProgressList.get(i);
+           assertEquals(expectedProgress.getBatchId(), actualProgress.getBatchId());
+           assertEquals(expectedProgress.getBatchProgress(), actualProgress.getBatchProgress());
+       }
+   }
+   
 
 }

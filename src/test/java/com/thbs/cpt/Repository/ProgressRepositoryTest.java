@@ -174,6 +174,28 @@ public class ProgressRepositoryTest {
         assertEquals(75.0, result2[2]);
     }
 
+//// batchwise 
 
+
+@Test
+    void testFindBatchwiseProgress() {
+        // Given
+        List<Object[]> expectedProgressList = new ArrayList<>();
+        expectedProgressList.add(new Object[] { 1, 90.0 });
+        expectedProgressList.add(new Object[] { 2, 85.0 });
+        when(progressRepository.findBatchwiseProgress()).thenReturn(expectedProgressList);
+
+        // When
+        List<Object[]> actualProgressList = progressRepository.findBatchwiseProgress();
+
+        // Then
+        assertEquals(expectedProgressList.size(), actualProgressList.size());
+        for (int i = 0; i < expectedProgressList.size(); i++) {
+            Object[] expectedProgress = expectedProgressList.get(i);
+            Object[] actualProgress = actualProgressList.get(i);
+            assertEquals(expectedProgress[0], actualProgress[0]);
+            assertEquals(expectedProgress[1], actualProgress[1]);
+        }
+    }
 
 }

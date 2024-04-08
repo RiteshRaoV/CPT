@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.thbs.cpt.DTO.BatchProgressDTO;
+import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
@@ -186,6 +187,35 @@ void testCalculateCourseProgressForUser_EmptyResult() {
     // Then
     assertEquals(0, result.size());
 }
+  
+
+/// batch waise
+
+@Test
+    void testFindBatchwiseProgress() {
+        // Given
+        List<Object[]> mockResults = new ArrayList<>();
+        mockResults.add(new Object[] { 1, 90.0 });
+        mockResults.add(new Object[] { 2, 85.0 });
+        when(progressRepository.findBatchwiseProgress()).thenReturn(mockResults);
+
+        List<BatchWiseProgressDTO> expectedProgressList = new ArrayList<>();
+        expectedProgressList.add(new BatchWiseProgressDTO(1, 90.0));
+        expectedProgressList.add(new BatchWiseProgressDTO(2, 85.0));
+
+        // When
+        List<BatchWiseProgressDTO> actualProgressList = userProgressService.findBatchwiseProgress();
+
+        // Then
+        assertEquals(expectedProgressList.size(), actualProgressList.size());
+        for (int i = 0; i < expectedProgressList.size(); i++) {
+            BatchWiseProgressDTO expectedProgress = expectedProgressList.get(i);
+            BatchWiseProgressDTO actualProgress = actualProgressList.get(i);
+            assertEquals(expectedProgress.getBatchId(), actualProgress.getBatchId());
+            assertEquals(expectedProgress.getBatchProgress(), actualProgress.getBatchProgress());
+        }
+    }
+
 
 
 }
