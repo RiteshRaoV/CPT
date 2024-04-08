@@ -51,7 +51,7 @@ public class UserProgressService {
         if (!results.isEmpty()) {
             throw new CourseNotFoundException("Course with ID " + courseId + " not found.");
         } else {
-            throw new UserNotFoundException("User with ID " + userId + " not found.");
+            throw new UserNotFoundException("Course with ID " + courseId + " not found.");
         }
     }
 
@@ -69,7 +69,7 @@ public class UserProgressService {
         if (!results.isEmpty()) {
             throw new TopicIdNotFoundException("Topic with ID " + topicId + " not found.");
         } else {
-            throw new CourseNotFoundException("Course with ID " + courseId + " not found.");
+            throw new CourseNotFoundException("Topic with ID " + topicId + " not found.");
         }
     }
 ///// batch 
@@ -79,11 +79,14 @@ public BatchProgressDTO calculateBatchProgress(int batchId) throws BatchIdNotFou
     List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
     if (results != null && !results.isEmpty()) {
         Object[] result = results.get(0);
-        double batchProgress = (double) result[0];
-        return new BatchProgressDTO(batchId, batchProgress);
+        if (result != null && result.length > 0) {
+            double batchProgress = (double) result[0];
+            return new BatchProgressDTO(batchId, batchProgress);
+        }
     }
     throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
 }
+
 
 public UserResourceProgressDTO calculateResourceProgressForUser(long userId, int resourceId)
 throws UserNotFoundException, ResourceIdNotFoundException {
