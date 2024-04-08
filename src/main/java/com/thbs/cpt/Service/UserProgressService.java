@@ -72,7 +72,7 @@ public class UserProgressService {
             throw new CourseNotFoundException("Topic with ID " + topicId + " not found.");
         }
     }
-///// batch 
+///// batch
 
 
 public BatchProgressDTO calculateBatchProgress(int batchId) throws BatchIdNotFoundException {
