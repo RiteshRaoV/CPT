@@ -92,7 +92,6 @@ public class UserProgressController {
         }
     }
 
-<<<<<<< HEAD
     @GetMapping("/allusers/{batchId}")
     public ResponseEntity<List<UserBatchProgressDTO>> getOverallBatchProgress(@PathVariable Long batchId) {
         List<UserBatchProgressDTO> progressList = userProgressService.calculateOverallBatchProgress(batchId);
@@ -102,10 +101,6 @@ public class UserProgressController {
             return ResponseEntity.notFound().build();
         }
     }
-=======
-   
->>>>>>> 42c1e0935abb7663148af9c7cb691573e8b77fa9
-
     @PostMapping("/courses")
     public ResponseEntity<List<UserAllCourseProgressDTO>> calculateOverallCourseProgress(
             @RequestBody CourseIdsRequest request) {
