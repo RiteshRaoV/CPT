@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thbs.cpt.DTO.BatchProgressDTO;
+import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
@@ -111,6 +112,20 @@ public class UserProgressService {
             }
         }
         return progressList;
+    }
+
+    
+    public List<BatchWiseProgressDTO> findBatchwiseProgress() {
+        List<Object[]> results = progressRepository.findBatchwiseProgress();
+        List<BatchWiseProgressDTO> batchProgressList = new ArrayList<>();
+
+        for (Object[] result : results) {
+            int batchId = (int) result[0];
+            double batchProgress = (double) result[1];
+            batchProgressList.add(new BatchWiseProgressDTO(batchId, batchProgress));
+        }
+
+        return batchProgressList;
     }
     
     

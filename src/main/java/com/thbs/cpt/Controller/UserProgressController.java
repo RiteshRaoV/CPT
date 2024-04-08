@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thbs.cpt.DTO.BatchProgressDTO;
+import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.CourseIdsRequest;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
@@ -81,6 +81,16 @@ public class UserProgressController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/batchwise")
+    public ResponseEntity<List<BatchWiseProgressDTO>> calculateBatchwiseProgress() {
+        List<BatchWiseProgressDTO> batchProgressList = userProgressService.findBatchwiseProgress();
+        if (!batchProgressList.isEmpty()) {
+            return ResponseEntity.ok(batchProgressList);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     // @GetMapping("/batches")
     // public ResponseEntity<BatchProgressDTO> calculateAllBatchProgress(){
@@ -100,6 +110,8 @@ public class UserProgressController {
         } else {
             return ResponseEntity.notFound().build();
         }
+
+    
     }
     
     

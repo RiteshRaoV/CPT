@@ -89,5 +89,15 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
      List<Object[]> findCourseProgressByUserAndCourses(@Param("userId") Long userId,
                @Param("courseIds") List<Integer> courseIds);
 
+
+               
+    @Query(value = "SELECT lr.batch_id, AVG(p.completion_percentage) AS batch_progress " +
+    "FROM Progress p " +
+    "JOIN Resource r ON p.resource_id = r.resource_id " +
+    "JOIN learning_resource lr ON r.learning_resource_id = lr.learning_resource_id " +
+    "GROUP BY lr.batch_id", nativeQuery = true)
+     List<Object[]> findBatchwiseProgress();
+
+
      Progress findByUserIdAndResourceId(long userId, int resourceId);
 }
