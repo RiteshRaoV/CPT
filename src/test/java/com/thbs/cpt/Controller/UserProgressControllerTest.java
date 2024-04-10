@@ -1,40 +1,28 @@
 package com.thbs.cpt.Controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thbs.cpt.DTO.*;
+import com.thbs.cpt.Service.UserProgressService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thbs.cpt.DTO.BatchProgressDTO;
-import com.thbs.cpt.DTO.BatchWiseProgressDTO;
-import com.thbs.cpt.DTO.CourseIdsRequest;
-import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
-import com.thbs.cpt.DTO.UserCourseProgressDTO;
-import com.thbs.cpt.DTO.UserProgressDTO;
-import com.thbs.cpt.DTO.UserResourceProgressDTO;
-import com.thbs.cpt.DTO.UserTopicProgressDTO;
-import com.thbs.cpt.Service.UserProgressService;
-
-
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(UserProgressController.class)
 @AutoConfigureMockMvc
 public class UserProgressControllerTest {
@@ -45,9 +33,7 @@ public class UserProgressControllerTest {
     @MockBean
     private UserProgressService userProgressService;
 
-    @InjectMocks
-    private UserProgressController userProgressController;
-
+    
     @Test
     void testCalculateOverallProgress_Success() throws Exception {
         // Given
@@ -57,7 +43,7 @@ public class UserProgressControllerTest {
 
         // When
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/{userId}", userId))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -78,7 +64,7 @@ public class UserProgressControllerTest {
 
         // When
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/{userId}/course/{courseId}", userId, courseId))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -100,7 +86,7 @@ public class UserProgressControllerTest {
 
         // When
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/{userId}/course/{courseId}/topic/{topicId}", userId, courseId, topicId))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -110,7 +96,7 @@ public class UserProgressControllerTest {
         assertEquals(expectedProgress.getUserId(), actualProgress.getUserId());
         assertEquals(expectedProgress.getTopicProgress(), actualProgress.getTopicProgress());
     }
-    /// test case for resouce 
+
     @Test
     void testCalculateResourceProgress_Success() throws Exception {
         // Given
@@ -122,7 +108,7 @@ public class UserProgressControllerTest {
         // When
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/{userId}/resource/{resourceId}", userId, resourceId)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         // Then
@@ -131,29 +117,65 @@ public class UserProgressControllerTest {
         assertEquals(expectedProgress.getUserId(), actualProgress.getUserId());
         assertEquals(expectedProgress.getResourceProgress(), actualProgress.getResourceProgress());
     }
-    /// batch progress test cases
+
     @Test
-    void testCalculateBatchProgress_Success() throws Exception {
+    void testCalculateBatchwiseProgress_Success() throws Exception {
         // Given
-        int batchId = 1;
-        BatchProgressDTO expectedProgress = new BatchProgressDTO(batchId, 90.0);
-        when(userProgressService.calculateBatchProgress(batchId)).thenReturn(expectedProgress);
+        List<BatchWiseProgressDTO> expectedProgressList = new ArrayList<>();
+        expectedProgressList.add(new BatchWiseProgressDTO(1, 90.0));
+        expectedProgressList.add(new BatchWiseProgressDTO(2, 85.0));
+        when(userProgressService.findBatchwiseProgress()).thenReturn(expectedProgressList);
+    
+        // When
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/batchwise")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+    
+        // Then
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<BatchWiseProgressDTO> actualProgressList = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<BatchWiseProgressDTO>>() {});
+        assertEquals(expectedProgressList.size(), actualProgressList.size());
+        for (int i = 0; i < expectedProgressList.size(); i++) {
+            BatchWiseProgressDTO expectedProgress = expectedProgressList.get(i);
+            BatchWiseProgressDTO actualProgress = actualProgressList.get(i);
+            assertEquals(expectedProgress.getBatchId(), actualProgress.getBatchId());
+            assertEquals(expectedProgress.getBatchProgress(), actualProgress.getBatchProgress());
+        }
+    }
+    
+    
+    
+
+    @Test
+    void testGetOverallBatchProgress_Success() throws Exception {
+        // Given
+        long batchId = 1L;
+        List<UserBatchProgressDTO> expectedProgressList = new ArrayList<>();
+        expectedProgressList.add(new UserBatchProgressDTO(1L, 80.0));
+        expectedProgressList.add(new UserBatchProgressDTO(2L, 85.0));
+        when(userProgressService.calculateOverallBatchProgress(batchId)).thenReturn(expectedProgressList);
 
         // When
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/batch/{batchId}", batchId)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/allusers/{batchId}", batchId)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         // Then
         ObjectMapper objectMapper = new ObjectMapper();
-        BatchProgressDTO actualProgress = objectMapper.readValue(result.getResponse().getContentAsString(), BatchProgressDTO.class);
-        assertEquals(expectedProgress.getBatchId(), actualProgress.getBatchId());
-        assertEquals(expectedProgress.getBatchProgress(), actualProgress.getBatchProgress());
+        List<UserBatchProgressDTO> actualProgressList = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<UserBatchProgressDTO>>() {});
+        assertEquals(expectedProgressList.size(), actualProgressList.size());
+        for (int i = 0; i < expectedProgressList.size(); i++) {
+            UserBatchProgressDTO expectedProgress = expectedProgressList.get(i);
+            UserBatchProgressDTO actualProgress = actualProgressList.get(i);
+            assertEquals(expectedProgress.getUserId(), actualProgress.getUserId());
+            assertEquals(expectedProgress.getOverallProgress(), actualProgress.getOverallProgress());
+        }
     }
-    /// post test
+
     @Test
-    void testCalculateOverallCourseProgress_Successq() throws Exception {
+    void testCalculateOverallCourseProgressBatch_Success() throws Exception {
         // Given
         long userId = 1L;
         List<Integer> courseIds = Arrays.asList(1, 2, 3); // Example list of courseIds
@@ -163,16 +185,16 @@ public class UserProgressControllerTest {
             expectedProgressList.add(progress);
         }
         when(userProgressService.calculateCourseProgressForUser(userId, courseIds)).thenReturn(expectedProgressList);
-    
+
         // When
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody = objectMapper.writeValueAsString(new CourseIdsRequest(userId, courseIds));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/progress/courses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
-    
+
         // Then
         List<UserAllCourseProgressDTO> actualProgressList = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<UserAllCourseProgressDTO>>() {});
         assertEquals(expectedProgressList.size(), actualProgressList.size());
@@ -184,33 +206,4 @@ public class UserProgressControllerTest {
             assertEquals(expectedProgress.getOverallProgress(), actualProgress.getOverallProgress());
         }
     }
-    
-   /// batch wis
-   @Test
-   void testCalculateBatchwiseProgress_Success() throws Exception {
-       // Given
-       List<BatchWiseProgressDTO> expectedProgressList = new ArrayList<>();
-       expectedProgressList.add(new BatchWiseProgressDTO(1, 90.0));
-       expectedProgressList.add(new BatchWiseProgressDTO(2, 85.0));
-       when(userProgressService.findBatchwiseProgress()).thenReturn(expectedProgressList);
-   
-       // When
-       MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/progress/batchwise")
-               .contentType(MediaType.APPLICATION_JSON))
-               .andExpect(MockMvcResultMatchers.status().isOk())
-               .andReturn();
-   
-       // Then
-       ObjectMapper objectMapper = new ObjectMapper();
-       List<BatchWiseProgressDTO> actualProgressList = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<BatchWiseProgressDTO>>() {});
-       assertEquals(expectedProgressList.size(), actualProgressList.size());
-       for (int i = 0; i < expectedProgressList.size(); i++) {
-           BatchWiseProgressDTO expectedProgress = expectedProgressList.get(i);
-           BatchWiseProgressDTO actualProgress = actualProgressList.get(i);
-           assertEquals(expectedProgress.getBatchId(), actualProgress.getBatchId());
-           assertEquals(expectedProgress.getBatchProgress(), actualProgress.getBatchProgress());
-       }
-   }
-   
-
 }
