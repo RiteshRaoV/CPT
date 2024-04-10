@@ -24,7 +24,6 @@ import com.thbs.cpt.Service.UserProgressService;
 
 @RestController
 @RequestMapping("/progress")
-@CrossOrigin(origins = "http://localhost:3000")
 public class UserProgressController {
     @Autowired
     private UserProgressService userProgressService;
@@ -117,6 +116,4 @@ public class UserProgressController {
     
     }
     
-    
-
 }

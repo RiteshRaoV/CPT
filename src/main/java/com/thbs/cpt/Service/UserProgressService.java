@@ -49,15 +49,15 @@ public class UserProgressService {
         if (results != null && !results.isEmpty()) {
             Object[] result = results.get(0);
             if (result[1] != null && result[2] != null) {
-                long userIdFromQuery = (long) result[1];
-                double overallProgress = (double) result[2];
-                return new UserCourseProgressDTO(userIdFromQuery, overallProgress);
+                Number userIdFromQuery = (Number) result[1];
+                Number overallProgress = (Number) result[2];
+                return new UserCourseProgressDTO(userIdFromQuery.longValue(), overallProgress.doubleValue());
             }
         }
         if (!results.isEmpty()) {
             throw new CourseNotFoundException("Course with ID " + courseId + " not found.");
         } else {
-            throw new UserNotFoundException("Course with ID " + courseId + " not found.");
+            throw new UserNotFoundException("User with ID " + userId + " not found.");
         }
     }
 
@@ -72,11 +72,7 @@ public class UserProgressService {
                 return new UserTopicProgressDTO(userIdFromQuery, topicProgress);
             }
         }
-        if (!results.isEmpty()) {
-            throw new TopicIdNotFoundException("Topic with ID " + topicId + " not found.");
-        } else {
-            throw new CourseNotFoundException("Topic with ID " + topicId + " not found.");
-        }
+            throw new TopicIdNotFoundException("Course with ID " + courseId + " not found.");
     }
     ///// batch
 
