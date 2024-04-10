@@ -73,7 +73,7 @@ public class UserProgressServiceTest {
         });
     }
 
-    // -----------------------------------------------
+    // -------------------course-test-cases----------------------------
 
     @Test
     public void testCalculateCourseProgressForUser_courseProgressFound()
@@ -124,7 +124,7 @@ public class UserProgressServiceTest {
         });
     }
 
-    // -----------------------------------------------------------
+    // --------------------topic-test-cases---------------------------------------
 
     @Test
     public void testCalculateUserTopicProgress_topicProgressFound() throws UserNotFoundException, CourseNotFoundException, TopicIdNotFoundException {
@@ -158,7 +158,7 @@ public class UserProgressServiceTest {
         });
     }
 
-    // Batch test cases
+// ---------------------batch-test-cases-------------------------------------------
 
     @Test
     void testCalculateBatchProgress_WhenBatchExists_ReturnsBatchProgressDTO() {
