@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
+// @Setter
 @AllArgsConstructor
-@NoArgsConstructor
+// @NoArgsConstructor
 public class UserBatchProgressDTO {
     private Long userId;
     private double overallProgress;
