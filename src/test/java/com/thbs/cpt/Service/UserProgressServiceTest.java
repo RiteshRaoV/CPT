@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,14 +16,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Entity.Progress;
-import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Exception.CourseNotFoundException;
 import com.thbs.cpt.Exception.ResourceIdNotFoundException;
 import com.thbs.cpt.Exception.TopicIdNotFoundException;
@@ -127,17 +124,20 @@ public class UserProgressServiceTest {
     // --------------------topic-test-cases---------------------------------------
 
     @Test
-    public void testCalculateUserTopicProgress_topicProgressFound() throws UserNotFoundException, CourseNotFoundException, TopicIdNotFoundException {
+    public void testCalculateUserTopicProgress_topicProgressFound()
+            throws UserNotFoundException, CourseNotFoundException, TopicIdNotFoundException {
         // Arrange
         long userId = 1L;
         int courseId = 1;
         int topicId = 1;
         double expectedTopicProgress = 0.75;
-        Object[] result = {userId, courseId, topicId, expectedTopicProgress};
-        when(progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId)).thenReturn(Collections.singletonList(result));
+        Object[] result = { userId, courseId, topicId, expectedTopicProgress };
+        when(progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId))
+                .thenReturn(Collections.singletonList(result));
 
         // Act
-        UserTopicProgressDTO userTopicProgressDTO = userProgressService.calculateUserTopicProgress(userId, courseId, topicId);
+        UserTopicProgressDTO userTopicProgressDTO = userProgressService.calculateUserTopicProgress(userId, courseId,
+                topicId);
 
         // Assert
         assertEquals(userId, userTopicProgressDTO.getUserId());
@@ -150,7 +150,8 @@ public class UserProgressServiceTest {
         long userId = 1L;
         int courseId = 1;
         int topicId = 1;
-        when(progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId)).thenReturn(Collections.emptyList());
+        when(progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId))
+                .thenReturn(Collections.emptyList());
 
         // Act & Assert
         assertThrows(TopicIdNotFoundException.class, () -> {
@@ -158,70 +159,7 @@ public class UserProgressServiceTest {
         });
     }
 
-// ---------------------batch-test-cases-------------------------------------------
-
-    @Test
-    void testCalculateBatchProgress_WhenBatchExists_ReturnsBatchProgressDTO() {
-        // Arrange
-        int batchId = 1;
-        double expectedProgress = 54.16666666666667;
-        Object[] result = new Object[] { expectedProgress };
-        
-        // Creating a List<Object[]> with a single element, which is the result array
-        List<Object[]> resultList = new ArrayList<>();
-        resultList.add(result);
-        
-        // Stubbing the method call
-        when(progressRepository.findOverallBatchProgress(batchId)).thenReturn(resultList);
-    
-        // Act
-        BatchProgressDTO batchProgressDTO = userProgressService.calculateBatchProgress(batchId);
-    
-        // Assert
-        assertNotNull(batchProgressDTO);
-        assertEquals(batchId, batchProgressDTO.getBatchId());
-        assertEquals(expectedProgress, batchProgressDTO.getBatchProgress());
-    }
-    
-    
-    @Test
-    void testCalculateBatchProgress_WhenBatchDoesNotExist_ThrowsException() {
-        // Arrange
-        int nonExistentBatchId = 999;
-        when(progressRepository.findOverallBatchProgress(nonExistentBatchId)).thenReturn(Collections.emptyList());
-
-        // Act and Assert
-        BatchIdNotFoundException exception = assertThrows(BatchIdNotFoundException.class, () -> {
-             userProgressService.calculateBatchProgress(nonExistentBatchId);
-        
-            });
-
-        assertEquals("Batch with ID 999 not found.", exception.getMessage());
-    }
-
-    @Test
-    void testCalculateBatchProgress_WhenRepositoryReturnsNull_ThrowsException() {
-        // Arrange
-        int batchId =1;
-        when(progressRepository.findOverallBatchProgress(batchId)).thenReturn(null);
-
-        // Act and Assert
-        assertThrows(BatchIdNotFoundException.class, () -> {
-            userProgressService.calculateBatchProgress(batchId);
-        });
-    }
-
-    @Test
-    void testCalculateBatchProgress_WhenRepositoryReturnsEmptyList_ThrowsException() {
-        // Arrange
-        int batchId = 2;
-        when(progressRepository.findOverallBatchProgress(batchId)).thenReturn(Collections.emptyList());
-
-        // Act and Assert
-        assertThrows(BatchIdNotFoundException.class, () -> {
-            userProgressService.calculateBatchProgress(batchId);
-        });
-    }
+    // ---------------------batch-test-cases-------------------------------------------
 
     @Test
     void testCalculateResourceProgressForUser_WhenProgressExists_ReturnsUserResourceProgressDTO() {
@@ -233,7 +171,8 @@ public class UserProgressServiceTest {
         when(progressRepository.findByUserIdAndResourceId(userId, resourceId)).thenReturn(progress);
 
         // Act
-        UserResourceProgressDTO userResourceProgressDTO = userProgressService.calculateResourceProgressForUser(userId, resourceId);
+        UserResourceProgressDTO userResourceProgressDTO = userProgressService.calculateResourceProgressForUser(userId,
+                resourceId);
 
         // Assert
         assertNotNull(userResourceProgressDTO);
@@ -262,13 +201,14 @@ public class UserProgressServiceTest {
         Long userId = 1L;
         List<Integer> courseIds = List.of(1, 2);
         Object[] result1 = { userId, 1, 45.83333333333333 };
-        Object[] result2 = { userId, 2, 87.5};
+        Object[] result2 = { userId, 2, 87.5 };
         List<Object[]> results = List.of(result1, result2);
         when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds)).thenReturn(results);
-    
+
         // Act
-        List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId, courseIds);
-    
+        List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId,
+                courseIds);
+
         // Assert
         assertNotNull(progressList);
         assertEquals(2, progressList.size());
@@ -279,17 +219,18 @@ public class UserProgressServiceTest {
         assertEquals(2, progressList.get(1).getCourseId()); // Corrected courseId assertion
         assertEquals(87.5, progressList.get(1).getOverallProgress());
     }
-    
 
     @Test
     void testCalculateCourseProgressForUser_WhenResultsDoNotExist_ReturnsEmptyList() {
         // Arrange
         Long userId = 1L;
         List<Integer> courseIds = List.of(1, 2, 3);
-        when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds)).thenReturn(Collections.emptyList());
+        when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds))
+                .thenReturn(Collections.emptyList());
 
         // Act
-        List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId, courseIds);
+        List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId,
+                courseIds);
 
         // Assert
         assertNotNull(progressList);

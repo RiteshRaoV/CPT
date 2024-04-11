@@ -6,16 +6,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.thbs.cpt.DTO.BatchProgressDTO;
-import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
-import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Entity.Progress;
-import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Exception.CourseNotFoundException;
 import com.thbs.cpt.Exception.ResourceIdNotFoundException;
 import com.thbs.cpt.Exception.TopicIdNotFoundException;
@@ -72,20 +68,7 @@ public class UserProgressService {
                 return new UserTopicProgressDTO(userIdFromQuery, topicProgress);
             }
         }
-            throw new TopicIdNotFoundException("Course with ID " + courseId + " not found.");
-    }
-    ///// batch
-
-    public BatchProgressDTO calculateBatchProgress(int batchId) throws BatchIdNotFoundException {
-        List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
-        if (results != null && !results.isEmpty()) {
-            Object[] result = results.get(0);
-            if (result != null && result.length > 0) {
-                double batchProgress = (double) result[0];
-                return new BatchProgressDTO(batchId, batchProgress);
-            }
-        }
-        throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
+        throw new TopicIdNotFoundException("Course with ID " + courseId + " not found.");
     }
 
     public UserResourceProgressDTO calculateResourceProgressForUser(long userId, int resourceId)
@@ -109,36 +92,6 @@ public class UserProgressService {
             }
         }
         return progressList;
-    }
-
-    public List<BatchWiseProgressDTO> findBatchwiseProgress() {
-        List<Object[]> results = progressRepository.findBatchwiseProgress();
-        List<BatchWiseProgressDTO> batchProgressList = new ArrayList<>();
-
-        for (Object[] result : results) {
-            int batchId = (int) result[0];
-            double batchProgress = (double) result[1];
-            batchProgressList.add(new BatchWiseProgressDTO(batchId, batchProgress));
-        }
-
-        return batchProgressList;
-    }
-
-    public List<UserBatchProgressDTO> calculateOverallBatchProgress(Long batchId) throws BatchIdNotFoundException {
-        List<Object[]> results = progressRepository.findOverallBatchProgress(batchId);
-        if (results != null && !results.isEmpty()) {
-            List<UserBatchProgressDTO> progressList = new ArrayList<>();
-            for (Object[] result : results) {
-                if (result[0] != null && result[1] != null) {
-                    Long userId = (Long) result[0];
-                    double overallProgress = (Double) result[1];
-                    progressList.add(new UserBatchProgressDTO(userId, overallProgress));
-                }
-            }
-            return progressList;
-        } else {
-            throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
-        }
     }
 
 }

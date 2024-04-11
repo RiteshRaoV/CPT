@@ -10,11 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.thbs.cpt.DTO.BatchProgressDTO;
-import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.CourseIdsRequest;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
-import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -70,35 +67,6 @@ public class UserProgressController {
         }
     }
 
-    @GetMapping("/batch/{batchId}")
-    public ResponseEntity<BatchProgressDTO> calculateBatchProgress(@PathVariable int batchId) {
-        BatchProgressDTO progress = userProgressService.calculateBatchProgress(batchId);
-        if (progress != null) {
-            return ResponseEntity.ok(progress);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/batchwise")
-    public ResponseEntity<List<BatchWiseProgressDTO>> calculateBatchwiseProgress() {
-        List<BatchWiseProgressDTO> batchProgressList = userProgressService.findBatchwiseProgress();
-        if (!batchProgressList.isEmpty()) {
-            return ResponseEntity.ok(batchProgressList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/allusers/{batchId}")
-    public ResponseEntity<List<UserBatchProgressDTO>> getOverallBatchProgress(@PathVariable Long batchId) {
-        List<UserBatchProgressDTO> progressList = userProgressService.calculateOverallBatchProgress(batchId);
-        if (!progressList.isEmpty()) {
-            return ResponseEntity.ok(progressList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
     @PostMapping("/courses")
     public ResponseEntity<List<UserAllCourseProgressDTO>> calculateOverallCourseProgress(
             @RequestBody CourseIdsRequest request) {
@@ -112,7 +80,6 @@ public class UserProgressController {
             return ResponseEntity.notFound().build();
         }
 
-    
     }
-    
+
 }
