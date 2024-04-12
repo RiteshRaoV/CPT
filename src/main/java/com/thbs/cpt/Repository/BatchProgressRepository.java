@@ -65,6 +65,7 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
     "     WHERE p.batch_id = :batchId "+
     " ) "+
     " GROUP BY user_id", nativeQuery = true)
-    List<Object[]> findOverallBatchProgress(Long batchId);
+    List<Object[]> findOverallBatchProgressAllUsers(Long batchId);
+
 
 }

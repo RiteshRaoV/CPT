@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
+import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
 
@@ -31,8 +32,8 @@ public class BatchProgressService {
         return batchProgressList;
     }
 
-    public List<UserBatchProgressDTO> calculateOverallBatchProgress(Long batchId) throws BatchIdNotFoundException {
-        List<Object[]> results = batchProgressRepository.findOverallBatchProgress(batchId);
+    public List<UserBatchProgressDTO> calculateOverallBatchProgressAllUsers(Long batchId) throws BatchIdNotFoundException {
+        List<Object[]> results = batchProgressRepository.findOverallBatchProgressAllUsers(batchId);
         if (results != null && !results.isEmpty()) {
             List<UserBatchProgressDTO> progressList = new ArrayList<>();
             for (Object[] result : results) {

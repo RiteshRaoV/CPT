@@ -43,7 +43,7 @@ public class BatchProgressController {
 
     @GetMapping("/allusers/{batchId}")
     public ResponseEntity<List<UserBatchProgressDTO>> getOverallBatchProgress(@PathVariable Long batchId) {
-        List<UserBatchProgressDTO> progressList = batchProgressService.calculateOverallBatchProgress(batchId);
+        List<UserBatchProgressDTO> progressList = batchProgressService.calculateOverallBatchProgressAllUsers(batchId);
         if (!progressList.isEmpty()) {
             return ResponseEntity.ok(progressList);
         } else {
