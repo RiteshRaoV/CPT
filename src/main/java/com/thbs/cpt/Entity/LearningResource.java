@@ -16,9 +16,9 @@ public class LearningResource {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long learningResourceId;
 
-    private int batchId;
-	private int courseId;
-	private int topicId;
+    private long batchId;
+	private long courseId;
+	private long topicId;
 
     @OneToMany(mappedBy = "learningResource")
     private List<Resource> resources;

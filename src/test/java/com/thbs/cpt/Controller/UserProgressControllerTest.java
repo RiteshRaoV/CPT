@@ -85,9 +85,9 @@ public class UserProgressControllerTest {
     @Test
     public void testCalculateOverallCourseProgressWithCourseIdsRequest() {
         long userId = 1;
-        List<Integer> courseIds = new ArrayList<>();
-        courseIds.add(1);
-        courseIds.add(2);
+        List<Long> courseIds = new ArrayList<>();
+        courseIds.add(1L);
+        courseIds.add(2L);
         CourseIdsRequest request = new CourseIdsRequest(userId, courseIds);
         List<UserAllCourseProgressDTO> mockProgressList = new ArrayList<>();
         when(userProgressService.calculateCourseProgressForUser(userId, courseIds)).thenReturn(mockProgressList);

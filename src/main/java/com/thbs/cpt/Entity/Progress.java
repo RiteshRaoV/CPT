@@ -13,13 +13,13 @@ public class Progress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long progressId;
     private long userId;
-    private int batchId;
-    private int resourceId;
+    private long batchId;
+    private long resourceId;
     private double completionPercentage;
     public Progress() {
     }
 
-    public Progress(long userId, int resourceId, double completionPercentage) {
+    public Progress(long userId, long resourceId, double completionPercentage) {
         this.userId = userId;
         this.resourceId = resourceId;
         this.completionPercentage = completionPercentage;

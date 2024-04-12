@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 // @NoArgsConstructor
 public class BatchWiseProgressDTO {
-    private int batchId;
+    private long batchId;
     private double batchProgress;
 
 }

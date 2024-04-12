@@ -23,7 +23,7 @@ public class BatchProgressService {
         List<BatchWiseProgressDTO> batchProgressList = new ArrayList<>();
 
         for (Object[] result : results) {
-            int batchId = (int) result[0];
+            long batchId = (long) result[0];
             double batchProgress = (double) result[1];
             batchProgressList.add(new BatchWiseProgressDTO(batchId, batchProgress));
         }
@@ -54,6 +54,7 @@ public class BatchProgressService {
             Object[] result = results.get(0);
             if (result != null && result.length > 0) {
                 double batchProgress = (double) result[0];
+                batchProgress = Math.round(batchProgress * 100.0) / 100.0;
                 return new BatchProgressDTO(batchId, batchProgress);
             }
         }

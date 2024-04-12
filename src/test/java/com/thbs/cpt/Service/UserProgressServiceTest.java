@@ -199,7 +199,7 @@ public class UserProgressServiceTest {
     void testCalculateCourseProgressForUser_WhenResultsExist_ReturnsUserAllCourseProgressDTOList() {
         // Arrange
         Long userId = 1L;
-        List<Integer> courseIds = List.of(1, 2);
+        List<Long> courseIds = List.of(1L, 2L);
         Object[] result1 = { userId, 1, 45.83333333333333 };
         Object[] result2 = { userId, 2, 87.5 };
         List<Object[]> results = List.of(result1, result2);
@@ -224,7 +224,7 @@ public class UserProgressServiceTest {
     void testCalculateCourseProgressForUser_WhenResultsDoNotExist_ReturnsEmptyList() {
         // Arrange
         Long userId = 1L;
-        List<Integer> courseIds = List.of(1, 2, 3);
+        List<Long> courseIds = List.of(1L, 2L, 3L);
         when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds))
                 .thenReturn(Collections.emptyList());
 

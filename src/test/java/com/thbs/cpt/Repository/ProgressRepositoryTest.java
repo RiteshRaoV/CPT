@@ -107,7 +107,7 @@ public class ProgressRepositoryTest {
     void testFindCourseProgressByUserAndCourses() {
         // Given
         long userId = 1L;
-        List<Integer> courseIds = Arrays.asList(1, 2);
+        List<Long> courseIds = Arrays.asList(1L, 2L);
 
         // Mock the repository method call to return sample data
         List<Object[]> sampleData = new ArrayList<>();

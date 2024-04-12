@@ -13,7 +13,7 @@ import lombok.Data;
 public class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int resourceId;
+    private long resourceId;
 
     @ManyToOne
     @JoinColumn(name = "learningResourceId")

@@ -1,6 +1,9 @@
 package com.thbs.cpt.Controller;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thbs.cpt.DTO.CourseIdsRequest;
+import com.thbs.cpt.DTO.ProgressDTO;
+import com.thbs.cpt.DTO.ProgressRequest;
 import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
@@ -71,7 +76,7 @@ public class UserProgressController {
     public ResponseEntity<List<UserAllCourseProgressDTO>> calculateOverallCourseProgress(
             @RequestBody CourseIdsRequest request) {
         long userId = request.getUserId(); // Get userId from request body
-        List<Integer> courseIds = request.getCourseIds();
+        List<Long> courseIds = request.getCourseIds();
         List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId,
                 courseIds);
         if (!progressList.isEmpty()) {
@@ -81,5 +86,10 @@ public class UserProgressController {
         }
 
     }
+    @PostMapping("/user/courseProgress")
+    public ProgressDTO getUserProgress(@RequestBody ProgressRequest request) {
+        return userProgressService.getUserProgress(request.getUserId(), request.getCourseIds());
+    }
 
 }
+

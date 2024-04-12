@@ -20,7 +20,7 @@ public class BatchProgressController {
     @Autowired
     private BatchProgressService batchProgressService;
 
-
+// -----------working-fine-------------
     @GetMapping("/batch/{batchId}")
     public ResponseEntity<BatchProgressDTO> calculateBatchProgress(@PathVariable int batchId) {
         BatchProgressDTO progress = batchProgressService.calculateBatchProgress(batchId);
