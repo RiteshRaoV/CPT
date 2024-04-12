@@ -22,7 +22,7 @@ public class BatchProgressController {
     @Autowired
     private BatchProgressService batchProgressService;
 
-// -----------working-fine-------------
+    // gives the progress of a particular batch based on the batchId
     @GetMapping("/{batchId}")
     public ResponseEntity<BatchProgressDTO> calculateBatchProgress(@PathVariable int batchId) {
         BatchProgressDTO progress = batchProgressService.calculateBatchProgress(batchId);
@@ -33,6 +33,7 @@ public class BatchProgressController {
         }
     }
     
+    // gives the overall progress of all the batches
     @GetMapping
     public ResponseEntity<List<BatchWiseProgressDTO>> calculateBatchwiseProgress() {
         List<BatchWiseProgressDTO> batchProgressList = batchProgressService.findBatchwiseProgress();
@@ -43,6 +44,7 @@ public class BatchProgressController {
         }
     }
 
+    // gives the overall progress of all the users in the batch
     @GetMapping("/allusers/{batchId}")
     public ResponseEntity<List<UserBatchProgressDTO>> getOverallBatchProgress(@PathVariable Long batchId) {
         List<UserBatchProgressDTO> progressList = batchProgressService.calculateOverallBatchProgressAllUsers(batchId);

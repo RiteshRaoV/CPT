@@ -28,6 +28,7 @@ public class UserProgressController {
     @Autowired
     private UserProgressService userProgressService;
 
+    // gives the overall progress of the user
     @GetMapping("/{userId}")
     public ResponseEntity<UserProgressDTO> calculateOverallProgress(@PathVariable long userId) {
         UserProgressDTO progress = userProgressService.calculateOverallProgressForUser(userId);
@@ -38,6 +39,7 @@ public class UserProgressController {
         }
     }
 
+    // gives the course progress of the user in a particular course
     @GetMapping("/{userId}/course/{courseId}")
     public ResponseEntity<UserCourseProgressDTO> calculateOverallCourseProgress(@PathVariable long userId,
             @PathVariable int courseId) {
@@ -49,6 +51,7 @@ public class UserProgressController {
         }
     }
 
+    // gives the progress of the user in a particular topic
     @GetMapping("/{userId}/course/{CourseId}/topic/{TopicId}")
     public ResponseEntity<UserTopicProgressDTO> calculateOverallTopicProgress(@PathVariable long userId,
             @PathVariable int CourseId, @PathVariable int TopicId) {
@@ -60,6 +63,7 @@ public class UserProgressController {
         }
     }
 
+    // gives the progress of a user in a particular resourse
     @GetMapping("/{userId}/resource/{resourceId}")
     public ResponseEntity<UserResourceProgressDTO> calculateResourceProgress(@PathVariable int resourceId,
             @PathVariable long userId) {
@@ -70,6 +74,7 @@ public class UserProgressController {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @PostMapping("/courses")
     public ResponseEntity<List<UserAllCourseProgressDTO>> calculateOverallCourseProgress(
@@ -85,6 +90,8 @@ public class UserProgressController {
         }
 
     }
+
+    // gives the progress of a user in the courses and the topic progress within that course
     @PostMapping("/course-progress")
     public ProgressDTO getUserProgress(@RequestBody ProgressRequest request) {
         return userProgressService.getUserProgress(request.getUserId(), request.getCourseIds());

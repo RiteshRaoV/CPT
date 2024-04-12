@@ -11,6 +11,7 @@ import com.thbs.cpt.Entity.Progress;
 @Repository
 public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
 
+    // Fetches the overall_progress of all the users in a batch
     @Query(value = "SELECT user_id, AVG(course_progress) AS overall_progress" +
             " FROM (" +
             "    SELECT lr.course_id, p.user_id, AVG(p.completion_percentage) AS course_progress" +
@@ -23,6 +24,7 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
             "GROUP BY user_id;", nativeQuery = true)
     List<Object[]> findOvreallProgressOfUsersInABatch(int batchId);
 
+    // Fetches the overall progress of a batch
     @Query(value = "SELECT AVG(overall_progress) AS average_overall_progress " +
         " FROM ( " +
         " SELECT user_id, AVG(course_progress) AS overall_progress  " +
@@ -38,6 +40,7 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
     " ) AS user_progress",nativeQuery = true)
     List<Object[]> findOverallBatchProgress(long batchId);
 
+    // Fetches all the batches and their overall progress
     @Query(value = "SELECT batch_id, AVG(overall_progress) AS batch_completion_progress " +
             "FROM (" +
             "    SELECT p.batch_id, p.user_id, AVG(p.completion_percentage) AS overall_progress " +
@@ -49,6 +52,7 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
             "GROUP BY batch_id", nativeQuery = true)
     List<Object[]> findBatchwiseProgress();
 
+    // Fetches the overall progress of all the users in a batch
     @Query(value = "SELECT user_id, AVG(course_progress) AS overall_progress  "+
      "FROM ( "+
         " SELECT lr.course_id, p.user_id, AVG(p.completion_percentage) AS course_progress  "+
@@ -67,9 +71,11 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
     " GROUP BY user_id", nativeQuery = true)
     List<Object[]> findOverallBatchProgressAllUsers(Long batchId);
 
+    // Fetches all the batch id's from the progress entity
     @Query(value = "SELECT DISTINCT batch_id FROM Progress",nativeQuery = true)
     List<Object[]> findAllBatches();
 
+    // Fetches all the user id's from the progress entity
     @Query(value = "SELECT DISTINCT user_id FROM progress where batch_id= :batchId ",nativeQuery = true)
     List<Object[]> findAllUsers(long batchId);
 

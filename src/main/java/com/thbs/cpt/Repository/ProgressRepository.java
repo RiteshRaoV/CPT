@@ -25,6 +25,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
                "GROUP BY user_id", nativeQuery = true)
      List<Object[]> findOverallProgressForUser(Long userId);
 
+     // Fetches the overall course progress of a user in a course
      @Query(value = "SELECT tp.course_id, tp.user_id, AVG(tp.topic_progress) AS course_progress " +
                "FROM (" +
                "   SELECT lr.course_id, lr.topic_id, p.user_id, AVG(p.completion_percentage) AS topic_progress " +
@@ -37,6 +38,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
                "GROUP BY tp.course_id, tp.user_id", nativeQuery = true)
      List<Object[]> findCourseProgressByUserAndCourse(Long userId, long courseId);
 
+     // Fetches the overall topic progress of a user in a particular topic
      @Query(value = "SELECT" +
                " p.user_id,lr.course_id,lr.topic_id," +
                " AVG(p.completion_percentage) AS progress" +
@@ -55,7 +57,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
      List<Object[]> findTopicProgressByCourseAndUserId(Long userId, long courseId, long topicId);
 
 
-
+     // Fetches overall progress of the user in multiple courses
      @Query(value = "SELECT tp.user_id, tp.course_id, AVG(tp.topic_progress) AS course_progress " +
                "FROM (" +
                "   SELECT lr.course_id, p.user_id, AVG(p.completion_percentage) AS topic_progress " +
@@ -69,6 +71,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
      List<Object[]> findCourseProgressByUserAndCourses(@Param("userId") Long userId,
                @Param("courseIds") List<Long> courseIds);
 
+     // Fetches overall progress of the user in multiple courses
      @Query(value = "SELECT "+
       "p.user_id,lr.course_id,lr.topic_id, "+
      " AVG(p.completion_percentage) AS progress "+
@@ -85,7 +88,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
      " p.user_id, lr.course_id, lr.topic_id",nativeQuery = true)
      List<Object[]>  getUserProgress(Long userId, List<Long>courseIds);
 
-
+     // Fetches the progress of a user in a particular resource
      Progress findByUserIdAndResourceId(long userId, long resourceId);
 
 }
