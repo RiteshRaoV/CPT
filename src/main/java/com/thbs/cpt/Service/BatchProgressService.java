@@ -10,7 +10,6 @@ import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
-import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
 
@@ -37,14 +36,12 @@ public class BatchProgressService {
     }
 
     public List<UserBatchProgressDTO> calculateOverallBatchProgressAllUsers(Long batchId) throws BatchIdNotFoundException {
-        // List<Object[]> results = batchProgressRepository.findOverallBatchProgressAllUsers(batchId);
         List<Object[]> users=batchProgressRepository.findAllUsers(batchId);
         if (users != null && !users.isEmpty()) {
             List<UserBatchProgressDTO> progressList = new ArrayList<>();
             for (Object[] user : users) {
                 if (user[0] != null) {
                     Long userId = (Long) user[0];
-                    // double overallProgress = (Double) result[1];
                     UserProgressDTO progress=userProgressService.calculateOverallProgressForUser(userId);
                     progressList.add(new UserBatchProgressDTO(userId, progress.getOverallProgress()));
                 }
