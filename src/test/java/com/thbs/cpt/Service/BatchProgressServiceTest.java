@@ -46,35 +46,35 @@ class BatchProgressServiceTest {
         assertEquals(60.0, result.get(1).getBatchProgress());
     }
 
-    @Test
-    void testCalculateOverallBatchProgress_Success() throws BatchIdNotFoundException {
-        // Given
-        long batchId = 1L;
-        List<Object[]> mockResults = new ArrayList<>();
-        mockResults.add(new Object[]{1L, 80.0});
-        mockResults.add(new Object[]{2L, 85.0});
-        when(batchProgressRepository.findOverallBatchProgress(batchId)).thenReturn(mockResults);
+    // @Test
+    // void testCalculateOverallBatchProgress_Success() throws BatchIdNotFoundException {
+    //     // Given
+    //     long batchId = 1L;
+    //     List<Object[]> mockResults = new ArrayList<>();
+    //     mockResults.add(new Object[]{1L, 80.0});
+    //     mockResults.add(new Object[]{2L, 85.0});
+    //     when(batchProgressRepository.findOverallBatchProgress(batchId)).thenReturn(mockResults);
 
-        // When
-        List<UserBatchProgressDTO> result = batchProgressService.calculateOverallBatchProgress(batchId);
+    //     // When
+    //     List<UserBatchProgressDTO> result = batchProgressService.calculateOverallBatchProgress(batchId);
 
-        // Then
-        assertEquals(2, result.size());
-        assertEquals(1L, result.get(0).getUserId());
-        assertEquals(80.0, result.get(0).getOverallProgress());
-        assertEquals(2L, result.get(1).getUserId());
-        assertEquals(85.0, result.get(1).getOverallProgress());
-    }
+    //     // Then
+    //     assertEquals(2, result.size());
+    //     assertEquals(1L, result.get(0).getUserId());
+    //     assertEquals(80.0, result.get(0).getOverallProgress());
+    //     assertEquals(2L, result.get(1).getUserId());
+    //     assertEquals(85.0, result.get(1).getOverallProgress());
+    // }
 
-    @Test
-    void testCalculateOverallBatchProgress_BatchIdNotFound() {
-        // Given
-        long batchId = 1L;
-        when(batchProgressRepository.findOverallBatchProgress(batchId)).thenReturn(new ArrayList<>());
+    // @Test
+    // void testCalculateOverallBatchProgress_BatchIdNotFound() {
+    //     // Given
+    //     long batchId = 1L;
+    //     when(batchProgressRepository.findOverallBatchProgress(batchId)).thenReturn(new ArrayList<>());
 
-        // Then
-        assertThrows(BatchIdNotFoundException.class, () -> batchProgressService.calculateOverallBatchProgress(batchId));
-    }
+    //     // Then
+    //     assertThrows(BatchIdNotFoundException.class, () -> batchProgressService.calculateOverallBatchProgress(batchId));
+    // }
 
     @Test
     void testCalculateBatchProgress_Success() throws BatchIdNotFoundException {

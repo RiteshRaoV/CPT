@@ -11,6 +11,8 @@ import com.thbs.cpt.Entity.Progress;
 
 @Repository
 public interface ProgressRepository extends JpaRepository<Progress, Long> {
+     
+     //find overall progress of user
      @Query(value = "SELECT user_id, AVG(course_progress) AS overall_progress " +
                "FROM (" +
                "   SELECT lr.course_id, p.user_id, AVG(p.completion_percentage) AS course_progress " +

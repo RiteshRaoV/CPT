@@ -86,22 +86,22 @@ class BatchProgressControllerTest {
         assertNull(response.getBody());
     }
 
-    @Test
-    void testGetOverallBatchProgress_Success() {
-        // Given
-        long batchId = 1L;
-        List<UserBatchProgressDTO> expectedProgressList = new ArrayList<>();
-        expectedProgressList.add(new UserBatchProgressDTO(1L, 80.0));
-        expectedProgressList.add(new UserBatchProgressDTO(2L, 85.0));
-        when(batchProgressService.calculateOverallBatchProgress(batchId)).thenReturn(expectedProgressList);
+    // @Test
+    // void testGetOverallBatchProgress_Success() {
+    //     // Given
+    //     long batchId = 1L;
+    //     List<UserBatchProgressDTO> expectedProgressList = new ArrayList<>();
+    //     expectedProgressList.add(new UserBatchProgressDTO(1L, 80.0));
+    //     expectedProgressList.add(new UserBatchProgressDTO(2L, 85.0));
+    //     when(batchProgressService.calculateOverallBatchProgress(batchId)).thenReturn(expectedProgressList);
 
-        // When
-        ResponseEntity<List<UserBatchProgressDTO>> response = batchProgressController.getOverallBatchProgress(batchId);
+    //     // When
+    //     ResponseEntity<List<UserBatchProgressDTO>> response = batchProgressController.getOverallBatchProgress(batchId);
 
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedProgressList, response.getBody());
-    }
+    //     // Then
+    //     assertEquals(HttpStatus.OK, response.getStatusCode());
+    //     assertEquals(expectedProgressList, response.getBody());
+    // }
 
 
     

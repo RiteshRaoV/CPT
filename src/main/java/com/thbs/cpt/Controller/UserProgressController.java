@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,8 @@ import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Service.UserProgressService;
 
 @RestController
-@RequestMapping("/progress")
+@RequestMapping("/user-progress")
+@CrossOrigin("*")
 public class UserProgressController {
     @Autowired
     private UserProgressService userProgressService;
@@ -39,10 +41,10 @@ public class UserProgressController {
         }
     }
 
-    @GetMapping("/{userId}/course/{CourseId}")
+    @GetMapping("/{userId}/course/{courseId}")
     public ResponseEntity<UserCourseProgressDTO> calculateOverallCourseProgress(@PathVariable long userId,
-            @PathVariable int CourseId) {
-        UserCourseProgressDTO progress = userProgressService.calculateCourseProgressForUser(userId, CourseId);
+            @PathVariable int courseId) {
+        UserCourseProgressDTO progress = userProgressService.calculateCourseProgressForUser(userId, courseId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
         } else {
@@ -86,7 +88,7 @@ public class UserProgressController {
         }
 
     }
-    @PostMapping("/user/courseProgress")
+    @PostMapping("/course-progress")
     public ProgressDTO getUserProgress(@RequestBody ProgressRequest request) {
         return userProgressService.getUserProgress(request.getUserId(), request.getCourseIds());
     }
