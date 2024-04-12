@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 // @NoArgsConstructor
 public class BatchProgressDTO {
-    int batchId;
+    long batchId;
     double BatchProgress;
 }

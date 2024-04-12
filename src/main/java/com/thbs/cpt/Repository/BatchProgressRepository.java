@@ -36,7 +36,7 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
         " ) AS cp  " +
         " GROUP BY user_id " +
     " ) AS user_progress",nativeQuery = true)
-    List<Object[]> findOverallBatchProgress(int batchId);
+    List<Object[]> findOverallBatchProgress(long batchId);
 
     @Query(value = "SELECT batch_id, AVG(overall_progress) AS batch_completion_progress " +
             "FROM (" +
@@ -67,5 +67,10 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
     " GROUP BY user_id", nativeQuery = true)
     List<Object[]> findOverallBatchProgressAllUsers(Long batchId);
 
+    @Query(value = "SELECT DISTINCT batch_id FROM Progress",nativeQuery = true)
+    List<Object[]> findAllBatches();
+
+    @Query(value = "SELECT DISTINCT user_id FROM progress where batch_id= :batchId ",nativeQuery = true)
+    List<Object[]> findAllUsers(long batchId);
 
 }
