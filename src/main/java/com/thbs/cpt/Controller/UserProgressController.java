@@ -21,14 +21,20 @@ import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
 import com.thbs.cpt.Service.UserProgressService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/user-progress")
 @CrossOrigin("*")
+@Tag(name = "user Progress", description = "Operations related to user progress")
+
 public class UserProgressController {
     @Autowired
     private UserProgressService userProgressService;
 
     // gives the overall progress of the user
+    @Operation(summary  = "gives the overall progress of the user")
     @GetMapping("/{userId}")
     public ResponseEntity<UserProgressDTO> calculateOverallProgress(@PathVariable long userId) {
         UserProgressDTO progress = userProgressService.calculateOverallProgressForUser(userId);
@@ -40,6 +46,7 @@ public class UserProgressController {
     }
 
     // gives the course progress of the user in a particular course
+    @Operation(summary  = "gives the course progress of the user in a particular course")
     @GetMapping("/{userId}/course/{courseId}")
     public ResponseEntity<UserCourseProgressDTO> calculateOverallCourseProgress(@PathVariable long userId,
             @PathVariable int courseId) {
@@ -52,6 +59,7 @@ public class UserProgressController {
     }
 
     // gives the progress of the user in a particular topic
+    @Operation(summary  ="gives the progress of the user in a particular topic" )
     @GetMapping("/{userId}/course/{CourseId}/topic/{TopicId}")
     public ResponseEntity<UserTopicProgressDTO> calculateOverallTopicProgress(@PathVariable long userId,
             @PathVariable int CourseId, @PathVariable int TopicId) {
@@ -64,6 +72,7 @@ public class UserProgressController {
     }
 
     // gives the progress of a user in a particular resourse
+    @Operation(summary  = "gives the progress of a user in a particular resourse")
     @GetMapping("/{userId}/resource/{resourceId}")
     public ResponseEntity<UserResourceProgressDTO> calculateResourceProgress(@PathVariable int resourceId,
             @PathVariable long userId) {
@@ -92,6 +101,7 @@ public class UserProgressController {
     }
 
     // gives the progress of a user in the courses and the topic progress within that course
+    @Operation(summary  = "gives the progress of a user in the courses and the topic progress within that course")
     @PostMapping("/course-progress")
     public ProgressDTO getUserProgress(@RequestBody ProgressRequest request) {
         return userProgressService.getUserProgress(request.getUserId(), request.getCourseIds());

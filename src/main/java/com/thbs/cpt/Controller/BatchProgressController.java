@@ -15,14 +15,19 @@ import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.Service.BatchProgressService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/batch-progress")
 @CrossOrigin("*")
+@Tag(name = "Batch Progress", description = "Operations related to batch progress")
 public class BatchProgressController {
     @Autowired
     private BatchProgressService batchProgressService;
 
     // gives the progress of a particular batch based on the batchId
+    @Operation(summary  = "gives the progress of a particular batch based on the batchId")
     @GetMapping("/{batchId}")
     public ResponseEntity<BatchProgressDTO> calculateBatchProgress(@PathVariable int batchId) {
         BatchProgressDTO progress = batchProgressService.calculateBatchProgress(batchId);
@@ -34,6 +39,7 @@ public class BatchProgressController {
     }
     
     // gives the overall progress of all the batches
+    @Operation(summary  = "gives the overall progress of all the batches")
     @GetMapping
     public ResponseEntity<List<BatchWiseProgressDTO>> calculateBatchwiseProgress() {
         List<BatchWiseProgressDTO> batchProgressList = batchProgressService.findBatchwiseProgress();
@@ -45,6 +51,7 @@ public class BatchProgressController {
     }
 
     // gives the overall progress of all the users in the batch
+    @Operation(summary  = "gives the overall progress of all the users in the batch")
     @GetMapping("/allusers/{batchId}")
     public ResponseEntity<List<UserBatchProgressDTO>> getOverallBatchProgress(@PathVariable Long batchId) {
         List<UserBatchProgressDTO> progressList = batchProgressService.calculateOverallBatchProgressAllUsers(batchId);
