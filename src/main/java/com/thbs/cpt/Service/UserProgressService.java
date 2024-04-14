@@ -135,4 +135,10 @@ public class UserProgressService {
         courses.add(newCourseDTO);
         return newCourseDTO;
     }
+
+    public void updateProgress(long userId,double resourceProgress,long resourceId){
+        Progress progress=progressRepository.findByUserIdAndResourceId(userId, resourceId);
+        progress.setCompletionPercentage(resourceProgress);
+        progressRepository.save(progress);
+    }
 }
