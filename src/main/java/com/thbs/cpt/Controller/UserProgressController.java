@@ -32,6 +32,7 @@ public class UserProgressController {
     @Autowired
     private UserProgressService userProgressService;
 
+    
     // gives the overall progress of the user
     @Operation(summary  = "gives the overall progress of the user")
     @GetMapping("/{userId}")
