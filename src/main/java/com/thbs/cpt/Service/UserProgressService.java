@@ -5,11 +5,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.thbs.cpt.DTO.CourseDTO;
 import com.thbs.cpt.DTO.ProgressDTO;
 import com.thbs.cpt.DTO.TopicDTO;
-import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
@@ -52,26 +50,24 @@ public class UserProgressService {
                 Number overallProgress = (Number) result[2];
                 return new UserCourseProgressDTO(userIdFromQuery.longValue(), overallProgress.doubleValue());
             }
+        }else{
+            throw new CourseNotFoundException("course with ID " + courseId + " not found.");
         }
-        if (!results.isEmpty()) {
-            throw new CourseNotFoundException("Course with ID " + courseId + " not found.");
-        } else {
-            throw new UserNotFoundException("User with ID " + userId + " not found.");
-        }
+        return null;
     }
 
-    public UserTopicProgressDTO calculateUserTopicProgress(Long userId, long courseId, long topicId)
+    public UserTopicProgressDTO calculateUserTopicProgress(Long userId, long topicId)
             throws UserNotFoundException, CourseNotFoundException, TopicIdNotFoundException {
-        List<Object[]> results = progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId);
+        List<Object[]> results = progressRepository.findTopicProgressByTopicAndUserId(userId, topicId);
         if (results != null && !results.isEmpty()) {
             Object[] result = results.get(0);
             if (result[1] != null && result[2] != null) {
                 long userIdFromQuery = (long) result[0];
-                double topicProgress = (double) result[3];
+                double topicProgress = (double) result[2];
                 return new UserTopicProgressDTO(userIdFromQuery, topicProgress);
             }
         }
-        throw new TopicIdNotFoundException("Course with ID " + courseId + " not found.");
+        throw new TopicIdNotFoundException("Topic with ID " + topicId + " not found.");
     }
 
     public UserResourceProgressDTO calculateResourceProgressForUser(long userId, long resourceId)
@@ -81,20 +77,6 @@ public class UserProgressService {
             return new UserResourceProgressDTO(userId, progress.getCompletionPercentage());
         }
         throw new ResourceIdNotFoundException("Resource with ID " + resourceId + " not found for user " + userId);
-    }
-
-    public List<UserAllCourseProgressDTO> calculateCourseProgressForUser(Long userId, List<Long> courseIds) {
-        List<Object[]> results = progressRepository.findCourseProgressByUserAndCourses(userId, courseIds);
-        List<UserAllCourseProgressDTO> progressList = new ArrayList<>();
-        for (Object[] result : results) {
-            if (result[0] != null && result[1] != null && result[2] != null) {
-                long userIdFromQuery = (long) result[0];
-                long courseId = (long) result[1];
-                double overallProgress = (double) result[2];
-                progressList.add(new UserAllCourseProgressDTO(userIdFromQuery, courseId, overallProgress));
-            }
-        }
-        return progressList;
     }
 
 
@@ -141,4 +123,5 @@ public class UserProgressService {
         progress.setCompletionPercentage(resourceProgress);
         progressRepository.save(progress);
     }
+
 }

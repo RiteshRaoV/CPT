@@ -1,28 +1,22 @@
 package com.thbs.cpt.Controller;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import java.util.ArrayList;
-import java.util.List;
+import com.thbs.cpt.DTO.*;
+import com.thbs.cpt.Exception.ResourceIdNotFoundException;
+import com.thbs.cpt.Service.UserProgressService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.thbs.cpt.DTO.CourseIdsRequest;
-import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
-import com.thbs.cpt.DTO.UserCourseProgressDTO;
-import com.thbs.cpt.DTO.UserProgressDTO;
-import com.thbs.cpt.DTO.UserResourceProgressDTO;
-import com.thbs.cpt.DTO.UserTopicProgressDTO;
-import com.thbs.cpt.Service.UserProgressService;
+import java.util.Collections;
 
-@SpringBootTest
-public class UserProgressControllerTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class UserProgressControllerTest {
 
     @Mock
     private UserProgressService userProgressService;
@@ -31,8 +25,8 @@ public class UserProgressControllerTest {
     private UserProgressController userProgressController;
 
     @Test
-    public void testCalculateOverallProgress() {
-        long userId = 1;
+    void testCalculateOverallProgressFound() {
+        long userId = 123;
         UserProgressDTO mockProgress = new UserProgressDTO();
         when(userProgressService.calculateOverallProgressForUser(userId)).thenReturn(mockProgress);
 
@@ -40,12 +34,26 @@ public class UserProgressControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockProgress, response.getBody());
+
+        verify(userProgressService, times(1)).calculateOverallProgressForUser(userId);
     }
 
     @Test
-    public void testCalculateOverallCourseProgress() {
-        long userId = 1;
-        int courseId = 1;
+    void testCalculateOverallProgressNotFound() {
+        long userId = 456;
+        when(userProgressService.calculateOverallProgressForUser(userId)).thenReturn(null);
+
+        ResponseEntity<UserProgressDTO> response = userProgressController.calculateOverallProgress(userId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(userProgressService, times(1)).calculateOverallProgressForUser(userId);
+    }
+
+    @Test
+    void testCalculateOverallCourseProgressFound() {
+        long userId = 123;
+        int courseId = 456;
         UserCourseProgressDTO mockProgress = new UserCourseProgressDTO();
         when(userProgressService.calculateCourseProgressForUser(userId, courseId)).thenReturn(mockProgress);
 
@@ -53,26 +61,55 @@ public class UserProgressControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockProgress, response.getBody());
+
+        verify(userProgressService, times(1)).calculateCourseProgressForUser(userId, courseId);
     }
 
     @Test
-    public void testCalculateOverallTopicProgress() {
-        long userId = 1;
-        int courseId = 1;
-        int topicId = 1;
-        UserTopicProgressDTO mockProgress = new UserTopicProgressDTO();
-        when(userProgressService.calculateUserTopicProgress(userId, courseId, topicId)).thenReturn(mockProgress);
+    void testCalculateOverallCourseProgressNotFound() {
+        long userId = 789;
+        int courseId = 101;
+        when(userProgressService.calculateCourseProgressForUser(userId, courseId)).thenReturn(null);
 
-        ResponseEntity<UserTopicProgressDTO> response = userProgressController.calculateOverallTopicProgress(userId, courseId, topicId);
+        ResponseEntity<UserCourseProgressDTO> response = userProgressController.calculateOverallCourseProgress(userId, courseId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(userProgressService, times(1)).calculateCourseProgressForUser(userId, courseId);
+    }
+
+    @Test
+    void testCalculateOverallTopicProgressFound() {
+        long userId = 123;
+        int topicId = 456;
+        UserTopicProgressDTO mockProgress = new UserTopicProgressDTO();
+        when(userProgressService.calculateUserTopicProgress(userId, topicId)).thenReturn(mockProgress);
+
+        ResponseEntity<UserTopicProgressDTO> response = userProgressController.calculateOverallTopicProgress(userId, topicId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockProgress, response.getBody());
+
+        verify(userProgressService, times(1)).calculateUserTopicProgress(userId, topicId);
     }
 
     @Test
-    public void testCalculateResourceProgress() {
-        long userId = 1;
-        int resourceId = 1;
+    void testCalculateOverallTopicProgressNotFound() {
+        long userId = 789;
+        int topicId = 101;
+        when(userProgressService.calculateUserTopicProgress(userId, topicId)).thenReturn(null);
+
+        ResponseEntity<UserTopicProgressDTO> response = userProgressController.calculateOverallTopicProgress(userId, topicId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(userProgressService, times(1)).calculateUserTopicProgress(userId, topicId);
+    }
+
+    @Test
+    void testCalculateResourceProgressFound() {
+        long userId = 123;
+        int resourceId = 456;
         UserResourceProgressDTO mockProgress = new UserResourceProgressDTO();
         when(userProgressService.calculateResourceProgressForUser(userId, resourceId)).thenReturn(mockProgress);
 
@@ -80,21 +117,67 @@ public class UserProgressControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockProgress, response.getBody());
+
+        verify(userProgressService, times(1)).calculateResourceProgressForUser(userId, resourceId);
     }
 
     @Test
-    public void testCalculateOverallCourseProgressWithCourseIdsRequest() {
-        long userId = 1;
-        List<Long> courseIds = new ArrayList<>();
-        courseIds.add(1L);
-        courseIds.add(2L);
-        CourseIdsRequest request = new CourseIdsRequest(userId, courseIds);
-        List<UserAllCourseProgressDTO> mockProgressList = new ArrayList<>();
-        when(userProgressService.calculateCourseProgressForUser(userId, courseIds)).thenReturn(mockProgressList);
+    void testCalculateResourceProgressNotFound() {
+        long userId = 789;
+        int resourceId = 101;
+        when(userProgressService.calculateResourceProgressForUser(userId, resourceId)).thenReturn(null);
 
-        ResponseEntity<List<UserAllCourseProgressDTO>> response = userProgressController.calculateOverallCourseProgress(request);
+        ResponseEntity<UserResourceProgressDTO> response = userProgressController.calculateResourceProgress(resourceId, userId);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(mockProgressList, response.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(userProgressService, times(1)).calculateResourceProgressForUser(userId, resourceId);
+    }
+
+    @Test
+    void testGetUserProgress() {
+        ProgressRequest request = new ProgressRequest();
+        request.setUserId(123L);
+        request.setCourseIds(Collections.singletonList(456L));
+
+        ProgressDTO mockProgress = new ProgressDTO();
+        when(userProgressService.getUserProgress(request.getUserId(), request.getCourseIds())).thenReturn(mockProgress);
+
+        ProgressDTO response = userProgressController.getUserProgress(request);
+
+        assertEquals(mockProgress, response);
+
+        verify(userProgressService, times(1)).getUserProgress(request.getUserId(), request.getCourseIds());
+    }
+
+    @Test
+    void testUpdateProgressSuccess() throws ResourceIdNotFoundException {
+        long userId = 123;
+        long resourceId = 456;
+        double progress = 0.5;
+
+        ResponseEntity<?> expectedResponse = ResponseEntity.ok().build();
+        doNothing().when(userProgressService).updateProgress(userId, progress, resourceId);
+
+        ResponseEntity<?> response = userProgressController.updateProgress(userId, resourceId, progress);
+
+        assertEquals(expectedResponse, response);
+
+        verify(userProgressService, times(1)).updateProgress(userId, progress, resourceId);
+    }
+
+    @Test
+    void testUpdateProgressResourceNotFound() throws ResourceIdNotFoundException {
+        long userId = 123;
+        long resourceId = 456;
+        double progress = 0.5;
+
+        doThrow(ResourceIdNotFoundException.class).when(userProgressService).updateProgress(userId, progress, resourceId);
+
+        ResponseEntity<?> response = userProgressController.updateProgress(userId, resourceId, progress);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(userProgressService, times(1)).updateProgress(userId, progress, resourceId);
     }
 }

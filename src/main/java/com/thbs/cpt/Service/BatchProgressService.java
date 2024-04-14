@@ -64,4 +64,5 @@ public class BatchProgressService {
         }
         throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
     }
+    
 }

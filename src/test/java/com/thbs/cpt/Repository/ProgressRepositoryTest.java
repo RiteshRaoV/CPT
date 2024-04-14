@@ -84,10 +84,10 @@ public class ProgressRepositoryTest {
         // Mock the repository method call to return sample data
         List<Object[]> sampleData = new ArrayList<>();
         sampleData.add(new Object[] { userId, courseId, topicId, expectedTopicProgress });
-        when(progressRepository.findTopicProgressByCourseAndUserId(anyLong(), anyInt(), anyInt())).thenReturn(sampleData);
+        when(progressRepository.findTopicProgressByTopicAndUserId(anyLong(), anyLong())).thenReturn(sampleData);
 
         // When
-        List<Object[]> actualProgressList = progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId);
+        List<Object[]> actualProgressList = progressRepository.findTopicProgressByTopicAndUserId(userId, topicId);
 
         // Then
         assertEquals(1, actualProgressList.size());
@@ -99,46 +99,5 @@ public class ProgressRepositoryTest {
     }
 
 /// new test cases 
-
-
-
-    ///post test 
-    @Test
-    void testFindCourseProgressByUserAndCourses() {
-        // Given
-        long userId = 1L;
-        List<Long> courseIds = Arrays.asList(1L, 2L);
-
-        // Mock the repository method call to return sample data
-        List<Object[]> sampleData = new ArrayList<>();
-        // Assuming the expected results for the test scenario
-        // For simplicity, let's say we expect 2 course progress records
-        // The actual values would depend on your test scenario
-        sampleData.add(new Object[] { userId, 1, 60.0 }); // Course 1 progress
-        sampleData.add(new Object[] { userId, 2, 75.0 }); // Course 2 progress
-        when(progressRepository.findCourseProgressByUserAndCourses(anyLong(), any())).thenReturn(sampleData);
-
-        // When
-        List<Object[]> actualProgressList = progressRepository.findCourseProgressByUserAndCourses(userId, courseIds);
-
-        // Then
-        assertEquals(2, actualProgressList.size());
-
-        // You may need to adjust the assertions based on your actual test scenario
-        Object[] result1 = actualProgressList.get(0);
-        assertEquals(userId, result1[0]);
-        assertEquals(1, result1[1]);
-        assertEquals(60.0, result1[2]);
-
-        Object[] result2 = actualProgressList.get(1);
-        assertEquals(userId, result2[0]);
-        assertEquals(2, result2[1]);
-        assertEquals(75.0, result2[2]);
-    }
-
-//// batchwise 
-
-
-
 
 }

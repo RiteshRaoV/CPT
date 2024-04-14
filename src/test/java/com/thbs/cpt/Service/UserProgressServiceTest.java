@@ -1,35 +1,23 @@
 package com.thbs.cpt.Service;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
+import com.thbs.cpt.DTO.*;
+import com.thbs.cpt.Entity.Progress;
+import com.thbs.cpt.Exception.*;
+import com.thbs.cpt.Repository.ProgressRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.thbs.cpt.DTO.UserAllCourseProgressDTO;
-import com.thbs.cpt.DTO.UserCourseProgressDTO;
-import com.thbs.cpt.DTO.UserProgressDTO;
-import com.thbs.cpt.DTO.UserResourceProgressDTO;
-import com.thbs.cpt.DTO.UserTopicProgressDTO;
-import com.thbs.cpt.Entity.Progress;
-import com.thbs.cpt.Exception.CourseNotFoundException;
-import com.thbs.cpt.Exception.ResourceIdNotFoundException;
-import com.thbs.cpt.Exception.TopicIdNotFoundException;
-import com.thbs.cpt.Exception.UserNotFoundException;
-import com.thbs.cpt.Repository.ProgressRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-@SpringBootTest
-public class UserProgressServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class UserProgressServiceTest {
 
     @Mock
     private ProgressRepository progressRepository;
@@ -37,204 +25,127 @@ public class UserProgressServiceTest {
     @InjectMocks
     private UserProgressService userProgressService;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
-    public void testCalculateOverallProgressForUser_userFound() throws UserNotFoundException {
-        // Arrange
+    void testCalculateOverallProgressForUserSuccess() throws UserNotFoundException {
         long userId = 1L;
-        double expectedOverallProgress = 0.85;
-        Object[] result = { userId, expectedOverallProgress };
-        when(progressRepository.findOverallProgressForUser(userId)).thenReturn(Collections.singletonList(result));
+        Object[] result = new Object[]{userId, 0.75}; // Assuming overall progress is 75%
+        List<Object[]> results = new ArrayList<>();
+        results.add(result);
+        when(progressRepository.findOverallProgressForUser(userId)).thenReturn(results);
 
-        // Act
-        UserProgressDTO userProgressDTO = userProgressService.calculateOverallProgressForUser(userId);
+        UserProgressDTO dto = userProgressService.calculateOverallProgressForUser(userId);
 
-        // Assert
-        assertEquals(userId, userProgressDTO.getUserId());
-        assertEquals(expectedOverallProgress, userProgressDTO.getOverallProgress());
+        assertNotNull(dto);
+        assertEquals(userId, dto.getUserId());
+        assertEquals(0.75, dto.getOverallProgress());
     }
 
     @Test
-    public void testCalculateOverallProgressForUser_userNotFound() {
-        // Arrange
+    void testCalculateOverallProgressForUserUserNotFound() {
+        long userId = 999L;
+        when(progressRepository.findOverallProgressForUser(userId)).thenReturn(new ArrayList<>());
+
+        assertThrows(UserNotFoundException.class, () -> userProgressService.calculateOverallProgressForUser(userId));
+    }
+
+    @Test
+    void testCalculateCourseProgressForUserSuccess() throws UserNotFoundException, CourseNotFoundException {
         long userId = 1L;
-        when(progressRepository.findOverallProgressForUser(userId)).thenReturn(Collections.emptyList());
-
-        // Act & Assert
-        assertThrows(UserNotFoundException.class, () -> {
-            userProgressService.calculateOverallProgressForUser(userId);
-        });
+        long courseId = 1L;
+        Object[] result = new Object[]{userId, userId, 0.75}; // Assuming course progress is 75%
+        List<Object[]> results = new ArrayList<>();
+        results.add(result);
+        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(results);
+    
+        UserCourseProgressDTO dto = userProgressService.calculateCourseProgressForUser(userId, courseId);
+    
+        assertNotNull(dto);
+        assertEquals(userId, dto.getUserId());
+        assertEquals(0.75, dto.getCourseProgress());
     }
-
-    // -------------------course-test-cases----------------------------
+    
 
     @Test
-    public void testCalculateCourseProgressForUser_courseProgressFound()
-            throws UserNotFoundException, CourseNotFoundException {
-        // Arrange
+    void testCalculateCourseProgressForUserCourseNotFound() {
         long userId = 1L;
-        int courseId = 1;
-        double expectedCourseProgress = 0.75;
-        Object[] result = { userId, courseId, expectedCourseProgress };
-        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId))
-                .thenReturn(Collections.singletonList(result));
+        long courseId = 999L;
+        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(new ArrayList<>());
 
-        // Act
-        UserCourseProgressDTO userCourseProgressDTO = userProgressService.calculateCourseProgressForUser(userId,
-                courseId);
-
-        // Assert
-        assertEquals(userId, userCourseProgressDTO.getUserId());
-        assertEquals(expectedCourseProgress, userCourseProgressDTO.getCourseProgress());
+        assertThrows(CourseNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId, courseId));
     }
 
     @Test
-    public void testCalculateCourseProgressForUser_courseProgressNotFound() {
-        // Arrange
+    void testCalculateCourseProgressForUserUserNotFound() {
+        long userId = 999L;
+        long courseId = 1L;
+        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(new ArrayList<>());
+
+        assertThrows(UserNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId, courseId));
+    }
+
+    @Test
+    void testCalculateUserTopicProgressSuccess() throws TopicIdNotFoundException {
         long userId = 1L;
-        int courseId = 1;
-        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId))
-                .thenReturn(Collections.emptyList());
-
-        // Act & Assert
-        assertThrows(UserNotFoundException.class, () -> {
-            userProgressService.calculateCourseProgressForUser(userId, courseId);
-        });
+        long topicId = 1L;
+        Object[] result = new Object[]{userId, topicId, 0.75}; // Assuming topic progress is 75%
+        List<Object[]> results = new ArrayList<>();
+        results.add(result);
+        when(progressRepository.findTopicProgressByTopicAndUserId(userId, topicId)).thenReturn(results);
+    
+        UserTopicProgressDTO dto = userProgressService.calculateUserTopicProgress(userId, topicId);
+    
+        assertNotNull(dto);
+        assertEquals(userId, dto.getUserId());
+        assertEquals(0.75, dto.getTopicProgress());
     }
+    
 
     @Test
-    public void testCalculateCourseProgressForUser_userNotFound() {
-        // Arrange
+    void testCalculateUserTopicProgressTopicNotFound() {
         long userId = 1L;
-        int courseId = 1;
-        Object[] result = null;
-        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId))
-                .thenReturn(Collections.emptyList());
+        long topicId = 999L;
+        when(progressRepository.findTopicProgressByTopicAndUserId(userId, topicId)).thenReturn(new ArrayList<>());
 
-        // Act & Assert
-        assertThrows(UserNotFoundException.class, () -> {
-            userProgressService.calculateCourseProgressForUser(userId, courseId);
-        });
+        assertThrows(TopicIdNotFoundException.class, () -> userProgressService.calculateUserTopicProgress(userId, topicId));
     }
 
-    // --------------------topic-test-cases---------------------------------------
-
     @Test
-    public void testCalculateUserTopicProgress_topicProgressFound()
-            throws UserNotFoundException, CourseNotFoundException, TopicIdNotFoundException {
-        // Arrange
+    void testCalculateResourceProgressForUserSuccess() throws UserNotFoundException, ResourceIdNotFoundException {
         long userId = 1L;
-        int courseId = 1;
-        int topicId = 1;
-        double expectedTopicProgress = 0.75;
-        Object[] result = { userId, courseId, topicId, expectedTopicProgress };
-        when(progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId))
-                .thenReturn(Collections.singletonList(result));
-
-        // Act
-        UserTopicProgressDTO userTopicProgressDTO = userProgressService.calculateUserTopicProgress(userId, courseId,
-                topicId);
-
-        // Assert
-        assertEquals(userId, userTopicProgressDTO.getUserId());
-        assertEquals(expectedTopicProgress, userTopicProgressDTO.getTopicProgress());
-    }
-
-    @Test
-    public void testCalculateUserTopicProgress_topicProgressNotFound() {
-        // Arrange
-        long userId = 1L;
-        int courseId = 1;
-        int topicId = 1;
-        when(progressRepository.findTopicProgressByCourseAndUserId(userId, courseId, topicId))
-                .thenReturn(Collections.emptyList());
-
-        // Act & Assert
-        assertThrows(TopicIdNotFoundException.class, () -> {
-            userProgressService.calculateUserTopicProgress(userId, courseId, topicId);
-        });
-    }
-
-    // ---------------------batch-test-cases-------------------------------------------
-
-    @Test
-    void testCalculateResourceProgressForUser_WhenProgressExists_ReturnsUserResourceProgressDTO() {
-        // Arrange
-        long userId = 1;
-        int resourceId = 1;
-        double completionPercentage = 75.0;
-        Progress progress = new Progress(userId, resourceId, completionPercentage);
+        long resourceId = 1L;
+        Progress progress = new Progress();
+        progress.setCompletionPercentage(0.5); // Assuming completion percentage is 50%
         when(progressRepository.findByUserIdAndResourceId(userId, resourceId)).thenReturn(progress);
 
-        // Act
-        UserResourceProgressDTO userResourceProgressDTO = userProgressService.calculateResourceProgressForUser(userId,
-                resourceId);
+        UserResourceProgressDTO dto = userProgressService.calculateResourceProgressForUser(userId, resourceId);
 
-        // Assert
-        assertNotNull(userResourceProgressDTO);
-        assertEquals(userId, userResourceProgressDTO.getUserId());
-        assertEquals(completionPercentage, userResourceProgressDTO.getResourceProgress());
+        assertNotNull(dto);
+        assertEquals(userId, dto.getUserId());
+        assertEquals(0.5, dto.getResourceProgress());
     }
 
     @Test
-    void testCalculateResourceProgressForUser_WhenProgressDoesNotExist_ThrowsException() {
-        // Arrange
-        long userId = 1;
-        int nonExistentResourceId = 999;
-        when(progressRepository.findByUserIdAndResourceId(userId, nonExistentResourceId)).thenReturn(null);
+    void testCalculateResourceProgressForUserResourceNotFound() {
+        long userId = 1L;
+        long resourceId = 999L;
+        when(progressRepository.findByUserIdAndResourceId(userId, resourceId)).thenReturn(null);
 
-        // Act and Assert
-        ResourceIdNotFoundException exception = assertThrows(ResourceIdNotFoundException.class, () -> {
-            userProgressService.calculateResourceProgressForUser(userId, nonExistentResourceId);
-        });
-
-        assertEquals("Resource with ID 999 not found for user 1", exception.getMessage());
+        assertThrows(ResourceIdNotFoundException.class, () -> userProgressService.calculateResourceProgressForUser(userId, resourceId));
     }
 
     @Test
-    void testCalculateCourseProgressForUser_WhenResultsExist_ReturnsUserAllCourseProgressDTOList() {
-        // Arrange
-        Long userId = 1L;
-        List<Long> courseIds = List.of(1L, 2L);
-        Object[] result1 = { userId, 1, 45.83333333333333 };
-        Object[] result2 = { userId, 2, 87.5 };
-        List<Object[]> results = List.of(result1, result2);
-        when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds)).thenReturn(results);
+    void testUpdateProgress() throws UserNotFoundException, ResourceIdNotFoundException {
+        long userId = 1L;
+        long resourceId = 1L;
+        double resourceProgress = 0.8;
+        Progress progress = new Progress();
+        progress.setCompletionPercentage(0.5); // Initial completion percentage is 50%
+        when(progressRepository.findByUserIdAndResourceId(userId, resourceId)).thenReturn(progress);
 
-        // Act
-        List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId,
-                courseIds);
+        userProgressService.updateProgress(userId, resourceProgress, resourceId);
 
-        // Assert
-        assertNotNull(progressList);
-        assertEquals(2, progressList.size());
-        assertEquals(userId, progressList.get(0).getUserId());
-        assertEquals(1, progressList.get(0).getCourseId()); // Corrected courseId assertion
-        assertEquals(45.83333333333333, progressList.get(0).getOverallProgress());
-        assertEquals(userId, progressList.get(1).getUserId());
-        assertEquals(2, progressList.get(1).getCourseId()); // Corrected courseId assertion
-        assertEquals(87.5, progressList.get(1).getOverallProgress());
+        assertEquals(resourceProgress, progress.getCompletionPercentage());
+        verify(progressRepository, times(1)).save(progress);
     }
-
-    @Test
-    void testCalculateCourseProgressForUser_WhenResultsDoNotExist_ReturnsEmptyList() {
-        // Arrange
-        Long userId = 1L;
-        List<Long> courseIds = List.of(1L, 2L, 3L);
-        when(progressRepository.findCourseProgressByUserAndCourses(userId, courseIds))
-                .thenReturn(Collections.emptyList());
-
-        // Act
-        List<UserAllCourseProgressDTO> progressList = userProgressService.calculateCourseProgressForUser(userId,
-                courseIds);
-
-        // Assert
-        assertNotNull(progressList);
-        assertTrue(progressList.isEmpty());
-    }
-
 }
+
