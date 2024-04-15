@@ -41,7 +41,7 @@ public class UserProgressService {
     }
 
     public UserCourseProgressDTO calculateCourseProgressForUser(Long userId, long courseId)
-            throws UserNotFoundException, CourseNotFoundException {
+            throws CourseNotFoundException {
         List<Object[]> results = progressRepository.findCourseProgressByUserAndCourse(userId, courseId);
         if (results != null && !results.isEmpty()) {
             Object[] result = results.get(0);
@@ -57,7 +57,7 @@ public class UserProgressService {
     }
 
     public UserTopicProgressDTO calculateUserTopicProgress(Long userId, long topicId)
-            throws UserNotFoundException, CourseNotFoundException, TopicIdNotFoundException {
+            throws TopicIdNotFoundException {
         List<Object[]> results = progressRepository.findTopicProgressByTopicAndUserId(userId, topicId);
         if (results != null && !results.isEmpty()) {
             Object[] result = results.get(0);
@@ -71,7 +71,7 @@ public class UserProgressService {
     }
 
     public UserResourceProgressDTO calculateResourceProgressForUser(long userId, long resourceId)
-            throws UserNotFoundException, ResourceIdNotFoundException {
+            throws  ResourceIdNotFoundException {
         Progress progress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
         if (progress != null) {
             return new UserResourceProgressDTO(userId, progress.getCompletionPercentage());
@@ -82,27 +82,49 @@ public class UserProgressService {
 
     public ProgressDTO getUserProgress(Long userId, List<Long> courseIds) {
         List<Object[]> results = progressRepository.getUserProgress(userId, courseIds);
-
+    
         ProgressDTO response = new ProgressDTO();
         response.setUserId(userId);
         List<CourseDTO> courses = new ArrayList<>();
-
+    
+        for (Long courseId : courseIds) {
+            CourseDTO courseDTO = new CourseDTO();
+            courseDTO.setCourseId(courseId);
+            courseDTO.setTopics(new ArrayList<>());
+            courses.add(courseDTO);
+        }
+    
         for (Object[] result : results) {
             long courseId = (long) result[1];
             long topicId = (long) result[2];
             double progressDouble = (double) result[3];
-
-            CourseDTO courseDTO = findOrCreateCourse(courses, courseId,userId);
+    
+            // Find the corresponding courseDTO for the current courseId
+            CourseDTO courseDTO = findCourse(courses, courseId);
+            if (courseDTO == null) {
+                throw new CourseNotFoundException("course with ID " + courseId + " not found");
+            }
+    
             TopicDTO topicDTO = new TopicDTO();
             topicDTO.setTopicId(topicId);
             topicDTO.setProgress(progressDouble);
             courseDTO.getTopics().add(topicDTO);
         }
-
+    
         response.setCourses(courses);
         return response;
     }
-
+    
+    // Helper method to find a courseDTO by courseId
+    private CourseDTO findCourse(List<CourseDTO> courses, long courseId) {
+        for (CourseDTO courseDTO : courses) {
+            if (courseDTO.getCourseId() == courseId) {
+                return courseDTO;
+            }
+        }
+        return null;
+    }
+    
     private CourseDTO findOrCreateCourse(List<CourseDTO> courses, long courseId,long userId) {
         for (CourseDTO courseDTO : courses) {
             if (courseDTO.getCourseId() == courseId) {

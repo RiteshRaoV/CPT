@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,27 +33,11 @@ class BatchProgressServiceTest {
     private BatchProgressService batchProgressService;
 
     
-    @Test
-    void testFindBatchwiseProgress() throws BatchIdNotFoundException {
-        // Mocking repository response
-        List<Object[]> batches = new ArrayList<>();
-        batches.add(new Object[]{1L}); // Assuming there is a batch with ID 1
-        when(batchProgressRepository.findAllBatches()).thenReturn(batches);
-    
-        // Stubbing the calculateBatchProgress method
-        when(batchProgressService.calculateBatchProgress(eq(1L))).thenReturn(new BatchProgressDTO(1L, 0.75)); // Verify batch ID 1
-    
-        // Test
-        List<BatchWiseProgressDTO> result = batchProgressService.findBatchwiseProgress();
-    
-        // Assertions
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getBatchId());
-        assertEquals(0.75, result.get(0).getBatchProgress());
-        verify(batchProgressRepository, times(1)).findAllBatches();
-        verify(batchProgressService, times(1)).calculateBatchProgress(eq(1L)); // Verify batch progress calculation for batch ID 1
-    }
-    
+
+
+    // Add similar test cases for other methods as needed
+
+
     
     
 
@@ -112,5 +97,87 @@ class BatchProgressServiceTest {
         assertThrows(BatchIdNotFoundException.class, () -> batchProgressService.calculateBatchProgress(batchId));
 
         verify(batchProgressRepository, times(1)).findOverallBatchProgress(batchId);
+    }
+
+
+
+    ///// find batchwise progress
+    @Test
+    void testFindBatchwiseProgressWhenNoBatchesFound() {
+        // Given
+        when(batchProgressRepository.findAllBatches()).thenReturn(new ArrayList<>());
+
+        // When
+        List<BatchWiseProgressDTO> batchProgressList = batchProgressService.findBatchwiseProgress();
+
+        // Then
+        assertTrue(batchProgressList.isEmpty());
+    }
+
+
+///
+
+@Test
+void testFindBatchwiseProgressSuccess() {
+    // Given
+    List<Object[]> sampleData = Arrays.asList(
+        new Object[] { 1L, 80.0 },
+        new Object[] { 2L, 75.0 }
+    );
+    when(batchProgressRepository.findAllBatches()).thenReturn(sampleData);
+    
+    // Mocking the behavior of calculateBatchProgress
+    when(batchProgressService.calculateBatchProgress(anyLong())).thenReturn(new BatchProgressDTO(1L, 80.0));
+
+    // When
+    List<BatchWiseProgressDTO> batchProgressList = batchProgressService.findBatchwiseProgress();
+
+    // Then
+    assertEquals(2, batchProgressList.size());
+
+    // Check the first batch progress
+    BatchWiseProgressDTO firstBatchProgress = batchProgressList.get(0);
+    assertEquals(1L, firstBatchProgress.getBatchId());
+    assertEquals(80.0, firstBatchProgress.getBatchProgress());
+
+    // Check the second batch progress
+    BatchWiseProgressDTO secondBatchProgress = batchProgressList.get(1);
+    assertEquals(2L, secondBatchProgress.getBatchId());
+    assertEquals(75.0, secondBatchProgress.getBatchProgress());
+}
+
+///
+
+
+    @Test
+    public void testCalculateOverallBatchProgressAllUsers_Success() {
+        // Mock findAllUsers to return sample users
+        Long batchId = 1L;
+        List<Object[]> users = new ArrayList<>();
+        users.add(new Object[] { 1L });
+        users.add(new Object[] { 2L });
+        when(batchProgressRepository.findAllUsers(batchId)).thenReturn(users);
+
+        // Mock calculateOverallProgressForUser for each user ID
+        when(userProgressService.calculateOverallProgressForUser(1L)).thenReturn(new UserProgressDTO(1L, 50));
+        when(userProgressService.calculateOverallProgressForUser(2L)).thenReturn(new UserProgressDTO(2L, 75));
+
+        // Execute the method under test
+        List<UserBatchProgressDTO> result = batchProgressService.calculateOverallBatchProgressAllUsers(batchId);
+
+        // Assert that the result contains two UserBatchProgressDTO objects
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testCalculateOverallBatchProgressAllUsers_BatchIdNotFoundException() {
+        // Mock findAllUsers to return an empty list
+        Long batchId = 1L;
+        when(batchProgressRepository.findAllUsers(batchId)).thenReturn(new ArrayList<>());
+
+        // Execute the method under test and expect BatchIdNotFoundException
+        assertThrows(BatchIdNotFoundException.class, () -> {
+            batchProgressService.calculateOverallBatchProgressAllUsers(batchId);
+        });
     }
 }
