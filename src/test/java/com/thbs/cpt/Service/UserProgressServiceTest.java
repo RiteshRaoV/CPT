@@ -47,39 +47,34 @@ class UserProgressServiceTest {
 
         assertThrows(UserNotFoundException.class, () -> userProgressService.calculateOverallProgressForUser(userId));
     }
-
-    @Test
-    void testCalculateCourseProgressForUserSuccess() throws UserNotFoundException, CourseNotFoundException {
-        long userId = 1L;
+   ////
+   @Test
+    void testCalculateCourseProgressForUser_Success() throws CourseNotFoundException {
+        // Given
+        Long userId = 1L;
         long courseId = 1L;
-        Object[] result = new Object[]{userId, userId, 0.75}; // Assuming course progress is 75%
-        List<Object[]> results = new ArrayList<>();
-        results.add(result);
-        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(results);
-    
-        UserCourseProgressDTO dto = userProgressService.calculateCourseProgressForUser(userId, courseId);
-    
-        assertNotNull(dto);
-        assertEquals(userId, dto.getUserId());
-        assertEquals(0.75, dto.getCourseProgress());
-    }
-    
+        Object[] mockResult = {userId, 1, 70.0}; // Sample result from the repository
+        List<Object[]> mockResults = new ArrayList<>();
+        mockResults.add(mockResult);
+        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(mockResults);
 
-    @Test
-    void testCalculateCourseProgressForUserCourseNotFound() {
-        long userId = 1L;
-        long courseId = 999L;
-        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(new ArrayList<>());
+        // When
+        UserCourseProgressDTO result = userProgressService.calculateCourseProgressForUser(userId, courseId);
 
-        assertThrows(CourseNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId, courseId));
+        // Then
+        assertNotNull(result);
+        assertEquals(userId, result.getUserId());
+        assertEquals(70.0, result.getCourseProgress());
     }
 
     @Test
-    void testCalculateCourseProgressForUserUserNotFound() {
-        long userId = 999L;
+    void testCalculateCourseProgressForUser_CourseNotFoundException() {
+        // Given
+        Long userId = 1L;
         long courseId = 1L;
         when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(new ArrayList<>());
 
+        // When and Then
         assertThrows(CourseNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId, courseId));
     }
 
@@ -147,5 +142,53 @@ class UserProgressServiceTest {
         assertEquals(resourceProgress, progress.getCompletionPercentage());
         verify(progressRepository, times(1)).save(progress);
     }
+    
+
+
+    ////// user progress test 
+
+
+    @Test
+void testGetUserProgress_CourseNotFoundException() {
+    // Mocking repository response
+    Long userId = 1L;
+    List<Long> courseIds = Arrays.asList(1L, 2L);
+    
+    // Set up the mock behavior to throw CourseNotFoundException for courseId 1
+    when(progressRepository.getUserProgress(userId, courseIds))
+            .thenThrow(new CourseNotFoundException("course with ID 1 not found"));
+
+    // Calling the service method and expecting an exception
+    assertThrows(CourseNotFoundException.class,
+            () -> userProgressService.getUserProgress(userId, courseIds));
+}
+
+
+    @Test
+void testGetUserProgress() {
+    // Mocking repository response for CourseNotFoundException
+    Long userId = 1L;
+    List<Long> courseIds = Arrays.asList(1L, 2L);
+
+    // Mocking repository response for valid input
+    List<Object[]> mockResults = new ArrayList<>();
+    mockResults.add(new Object[]{userId,1L, 1L, 50.0});
+    mockResults.add(new Object[]{userId, 1L, 2L, 75.0});
+    when(progressRepository.getUserProgress(userId, courseIds)).thenReturn(mockResults);
+
+    // Calling the service method
+    ProgressDTO result = userProgressService.getUserProgress(userId, courseIds);
+
+    // Assertions for valid input
+    assertNotNull(result);
+    assertEquals(userId, result.getUserId());
+    assertEquals(2, result.getCourses().size());
+    assertEquals(2, result.getCourses().get(0).getTopics().size());
+    assertEquals(50.0, result.getCourses().get(0).getTopics().get(0).getProgress());
+    assertEquals(75.0, result.getCourses().get(0).getTopics().get(1).getProgress());
+}
+
+
+
 }
 

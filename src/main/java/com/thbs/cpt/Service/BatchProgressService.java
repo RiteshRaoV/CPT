@@ -3,6 +3,7 @@ package com.thbs.cpt.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,6 +18,8 @@ import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
+
+import ch.qos.logback.classic.Logger;
 
 @Service
 public class BatchProgressService {
@@ -57,6 +60,8 @@ public class BatchProgressService {
             throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
         }
     }
+
+   
 
     public BatchProgressDTO calculateBatchProgress(long batchId) throws BatchIdNotFoundException {
         List<Object[]> results = batchProgressRepository.findOverallBatchProgress(batchId);
