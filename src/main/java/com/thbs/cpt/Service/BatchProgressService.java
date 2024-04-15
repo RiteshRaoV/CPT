@@ -71,10 +71,10 @@ public class BatchProgressService {
         throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
     }
 
-    public List<UserBatchProgressDTO> calculateBuProgress(long buId) {
-        String uri = "http://localhost:1111/users/{buId}";
+    public List<UserBatchProgressDTO> calculateBuProgress(String buisnessUnit) {
+        String uri = "http://172.18.4.185:7001/user/byBusinessUnit/{buisnessUnit}";
         RestTemplate restTemplate=new RestTemplate();
-        ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buId);
+        ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buisnessUnit);
         List<Long> userIds = response.getBody();
         
         if (userIds != null && !userIds.isEmpty()) {
@@ -88,10 +88,10 @@ public class BatchProgressService {
                 }
                 return userProgressList;
             } else {
-                throw new BatchIdNotFoundException("No progress found for users in batch with ID " + buId);
+                throw new BatchIdNotFoundException("No progress found for users in batch with ID " + buisnessUnit);
             }
         } else {
-            throw new BatchIdNotFoundException("No users found for batch with ID " + buId);
+            throw new BatchIdNotFoundException("No users found for batch with ID " + buisnessUnit);
         }
     }
     
