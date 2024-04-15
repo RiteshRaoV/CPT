@@ -1,12 +1,15 @@
 package com.thbs.cpt.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.thbs.cpt.DTO.CourseDTO;
 import com.thbs.cpt.DTO.ProgressDTO;
+import com.thbs.cpt.DTO.ResourceProgressDTO;
 import com.thbs.cpt.DTO.TopicDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
@@ -50,7 +53,7 @@ public class UserProgressService {
                 Number overallProgress = (Number) result[2];
                 return new UserCourseProgressDTO(userIdFromQuery.longValue(), overallProgress.doubleValue());
             }
-        }else{
+        } else {
             throw new CourseNotFoundException("course with ID " + courseId + " not found.");
         }
         return null;
@@ -78,7 +81,6 @@ public class UserProgressService {
         }
         throw new ResourceIdNotFoundException("Resource with ID " + resourceId + " not found for user " + userId);
     }
-
 
     public ProgressDTO getUserProgress(Long userId, List<Long> courseIds) {
         List<Object[]> results = progressRepository.getUserProgress(userId, courseIds);
@@ -134,16 +136,37 @@ public class UserProgressService {
         CourseDTO newCourseDTO = new CourseDTO();
         newCourseDTO.setCourseId(courseId);
         newCourseDTO.setTopics(new ArrayList<>());
-        UserCourseProgressDTO progress=calculateCourseProgressForUser(userId,courseId);
+        UserCourseProgressDTO progress = calculateCourseProgressForUser(userId, courseId);
         newCourseDTO.setCourseProgress(progress.getCourseProgress());
         courses.add(newCourseDTO);
         return newCourseDTO;
     }
 
-    public void updateProgress(long userId,double resourceProgress,long resourceId){
-        Progress progress=progressRepository.findByUserIdAndResourceId(userId, resourceId);
+    public void updateProgress(long userId, double resourceProgress, long resourceId) {
+        Progress progress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
         progress.setCompletionPercentage(resourceProgress);
         progressRepository.save(progress);
     }
 
+    public List<ResourceProgressDTO> findProgressByUserIdAndTopics(Long userId, List<Long> topicIds) {
+        List<Object[]> results = progressRepository.findProgressByUserIdAndTopics(userId, topicIds);
+        Map<Long, ResourceProgressDTO> resourceProgressMap = new HashMap<>();
+        
+        for (Object[] result : results) {
+            Long resourceId = (Long) result[0];
+            Double progressPercentage = (Double) result[1];
+            Long topicId = (Long) result[2];
+            
+            ResourceProgressDTO progressDTO = resourceProgressMap.getOrDefault(topicId, new ResourceProgressDTO());
+            progressDTO.setTopicId(topicId);
+            progressDTO.addProgress(resourceId, progressPercentage);
+            resourceProgressMap.put(topicId, progressDTO);
+        }
+        
+        return new ArrayList<>(resourceProgressMap.values());
+    }
+    
+    
+        
+    
 }

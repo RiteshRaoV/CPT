@@ -1,5 +1,7 @@
 package com.thbs.cpt.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.thbs.cpt.DTO.ProgressDTO;
 import com.thbs.cpt.DTO.ProgressRequest;
+import com.thbs.cpt.DTO.ResourceProgressDTO;
 import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.DTO.UserResourceProgressDTO;
 import com.thbs.cpt.DTO.UserTopicProgressDTO;
+import com.thbs.cpt.DTO.UserTopicRequestDTO;
 import com.thbs.cpt.Exception.ResourceIdNotFoundException;
 import com.thbs.cpt.Service.UserProgressService;
 
@@ -32,9 +36,8 @@ public class UserProgressController {
     @Autowired
     private UserProgressService userProgressService;
 
-    
     // gives the overall progress of the user
-    @Operation(summary  = "gives the overall progress of the user")
+    @Operation(summary = "gives the overall progress of the user")
     @GetMapping("/{userId}")
     public ResponseEntity<UserProgressDTO> calculateOverallProgress(@PathVariable long userId) {
         UserProgressDTO progress = userProgressService.calculateOverallProgressForUser(userId);
@@ -46,7 +49,7 @@ public class UserProgressController {
     }
 
     // gives the course progress of the user in a particular course
-    @Operation(summary  = "gives the course progress of the user in a particular course")
+    @Operation(summary = "gives the course progress of the user in a particular course")
     @GetMapping("/{userId}/course/{courseId}")
     public ResponseEntity<UserCourseProgressDTO> calculateOverallCourseProgress(@PathVariable long userId,
             @PathVariable int courseId) {
@@ -59,10 +62,10 @@ public class UserProgressController {
     }
 
     // gives the progress of the user in a particular topic
-    @Operation(summary  ="gives the progress of the user in a particular topic" )
+    @Operation(summary = "gives the progress of the user in a particular topic")
     @GetMapping("/{userId}/topic/{topicId}")
     public ResponseEntity<UserTopicProgressDTO> calculateOverallTopicProgress(@PathVariable long userId,
-             @PathVariable int topicId) {
+            @PathVariable int topicId) {
         UserTopicProgressDTO progress = userProgressService.calculateUserTopicProgress(userId, topicId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
@@ -72,7 +75,7 @@ public class UserProgressController {
     }
 
     // gives the progress of a user in a particular resourse
-    @Operation(summary  = "gives the progress of a user in a particular resourse")
+    @Operation(summary = "gives the progress of a user in a particular resourse")
     @GetMapping("/{userId}/resource/{resourceId}")
     public ResponseEntity<UserResourceProgressDTO> calculateResourceProgress(@PathVariable int resourceId,
             @PathVariable long userId) {
@@ -84,24 +87,33 @@ public class UserProgressController {
         }
     }
 
-
-    // gives the progress of a user in the courses and the topic progress within that course
-    @Operation(summary  = "gives the progress of a user in the courses and the topic progress within that course")
+    // gives the progress of a user in the courses and the topic progress within
+    // that course
+    @Operation(summary = "gives the progress of a user in the courses and the topic progress within that course")
     @PostMapping("/course-progress")
     public ProgressDTO getUserProgress(@RequestBody ProgressRequest request) {
         return userProgressService.getUserProgress(request.getUserId(), request.getCourseIds());
     }
+
     // to update the resource completion percentage of the user
     @Operation(summary = "to update the resource completion percentage of the user")
     @PatchMapping("/{userId}/resource/{resourceId}/update/{progress}")
-    public ResponseEntity<?> updateProgress(@PathVariable long userId,@PathVariable long resourceId,@PathVariable double progress){
-        try{
+    public ResponseEntity<?> updateProgress(@PathVariable long userId, @PathVariable long resourceId,
+            @PathVariable double progress) {
+        try {
             userProgressService.updateProgress(userId, progress, resourceId);
             return ResponseEntity.ok().build();
-        }catch(ResourceIdNotFoundException e){
+        } catch (ResourceIdNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-}
+    @Operation(summary = "to get the list of resource progress for given list of topic ids")
+    @PostMapping("/resource-progress")
+    public List<ResourceProgressDTO> findProgressByUserIdAndTopics(@RequestBody UserTopicRequestDTO userTopicRequest) {
+        Long userId = userTopicRequest.getUserId();
+        List<Long> topicIds = userTopicRequest.getTopicIds();
+        return userProgressService.findProgressByUserIdAndTopics(userId, topicIds);
+    }
 
+}

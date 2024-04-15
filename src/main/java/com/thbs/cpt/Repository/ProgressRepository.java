@@ -79,4 +79,14 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
      // Fetches the progress of a user in a particular resource
      Progress findByUserIdAndResourceId(long userId, long resourceId);
 
+      @Query(value = "SELECT p.resource_id, p.completion_percentage, lr.topic_id " +
+               "FROM Progress p " +
+               "JOIN Resource r ON p.resource_id = r.resource_id " +
+               "JOIN Learning_Resource lr ON r.learning_resource_id = lr.learning_resource_id " +
+               "WHERE lr.topic_id IN :topicIds " +
+               "AND p.user_id = :userId " +
+               "ORDER BY lr.topic_id ASC",nativeQuery = true)
+     List<Object[]> findProgressByUserIdAndTopics(@Param("userId") Long userId,
+               @Param("topicIds") List<Long> topicIds);
+
 }
