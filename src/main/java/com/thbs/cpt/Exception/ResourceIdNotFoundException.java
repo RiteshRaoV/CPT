@@ -6,7 +6,5 @@ public class ResourceIdNotFoundException extends NotFoundException {
         super(message);
     }
 
-    public ResourceIdNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
+
 }

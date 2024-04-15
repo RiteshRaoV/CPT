@@ -6,7 +6,5 @@ public class TopicIdNotFoundException extends NotFoundException {
         super(message);
     }
 
-    public TopicIdNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
+
 }

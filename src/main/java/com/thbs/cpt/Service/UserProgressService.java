@@ -28,6 +28,7 @@ public class UserProgressService {
     @Autowired
     private ProgressRepository progressRepository;
 
+
     public UserProgressDTO calculateOverallProgressForUser(Long userId) throws UserNotFoundException {
         List<Object[]> results = progressRepository.findOverallProgressForUser(userId);
         if (results != null && !results.isEmpty()) {

@@ -83,4 +83,6 @@ public class BatchProgressRepositoryTest {
             assertEquals(expectedProgress[1], actualProgress[1]);
         }
     }
+
+
 }

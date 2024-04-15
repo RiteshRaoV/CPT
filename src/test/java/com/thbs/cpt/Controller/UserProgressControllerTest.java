@@ -10,7 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -180,4 +182,29 @@ class UserProgressControllerTest {
 
         verify(userProgressService, times(1)).updateProgress(userId, progress, resourceId);
     }
+
+    @Test
+    void testFindProgressByUserIdAndTopics() {
+        // Mocking input data
+        UserTopicRequestDTO userTopicRequest = new UserTopicRequestDTO(1L,List.of(1L, 2L));
+ 
+        // Mocking service response
+        List<ResourceProgressDTO> expectedProgressList = new ArrayList<>();
+        // Populate expectedProgressList with some test data
+ 
+        when(userProgressService.findProgressByUserIdAndTopics(1L, List.of(1L, 2L))).thenReturn(expectedProgressList);
+ 
+        // Call the controller method
+        List<ResourceProgressDTO> actualProgressList = userProgressController
+                .findProgressByUserIdAndTopics(userTopicRequest);
+ 
+        // Assertions
+        assertEquals(expectedProgressList, actualProgressList);
+        verify(userProgressService, times(1)).findProgressByUserIdAndTopics(1L, List.of(1L, 2L));
+    }
+    ///
+
+
+
+    
 }
