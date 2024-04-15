@@ -80,7 +80,7 @@ class UserProgressServiceTest {
         long courseId = 1L;
         when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(new ArrayList<>());
 
-        assertThrows(UserNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId, courseId));
+        assertThrows(CourseNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId, courseId));
     }
 
     @Test

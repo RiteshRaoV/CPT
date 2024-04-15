@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
@@ -21,6 +26,7 @@ public class BatchProgressService {
 
     @Autowired
     private UserProgressService userProgressService;
+
 
     public List<BatchWiseProgressDTO> findBatchwiseProgress() {
         List<Object[]> batches=batchProgressRepository.findAllBatches();
@@ -63,6 +69,30 @@ public class BatchProgressService {
             }
         }
         throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
+    }
+
+    public List<UserBatchProgressDTO> calculateBuProgress(long buId) {
+        String uri = "http://localhost:1111/users/{buId}";
+        RestTemplate restTemplate=new RestTemplate();
+        ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buId);
+        List<Long> userIds = response.getBody();
+        
+        if (userIds != null && !userIds.isEmpty()) {
+            List<Object[]> results = batchProgressRepository.findUserProgressInBu(userIds);
+            if (!results.isEmpty()) {
+                List<UserBatchProgressDTO> userProgressList = new ArrayList<>();
+                for (Object[] result : results) {
+                    Long userId = (Long) result[0];
+                    Double overallProgress = (Double) result[1];
+                    userProgressList.add(new UserBatchProgressDTO(userId, overallProgress));
+                }
+                return userProgressList;
+            } else {
+                throw new BatchIdNotFoundException("No progress found for users in batch with ID " + buId);
+            }
+        } else {
+            throw new BatchIdNotFoundException("No users found for batch with ID " + buId);
+        }
     }
     
 }

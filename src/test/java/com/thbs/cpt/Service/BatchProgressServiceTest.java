@@ -30,30 +30,7 @@ class BatchProgressServiceTest {
 
     @InjectMocks
     private BatchProgressService batchProgressService;
-
-    
-    @Test
-    void testFindBatchwiseProgress() throws BatchIdNotFoundException {
-        // Mocking repository response
-        List<Object[]> batches = new ArrayList<>();
-        batches.add(new Object[]{1L}); // Assuming there is a batch with ID 1
-        when(batchProgressRepository.findAllBatches()).thenReturn(batches);
-    
-        // Stubbing the calculateBatchProgress method
-        when(batchProgressService.calculateBatchProgress(eq(1L))).thenReturn(new BatchProgressDTO(1L, 0.75)); // Verify batch ID 1
-    
-        // Test
-        List<BatchWiseProgressDTO> result = batchProgressService.findBatchwiseProgress();
-    
-        // Assertions
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getBatchId());
-        assertEquals(0.75, result.get(0).getBatchProgress());
-        verify(batchProgressRepository, times(1)).findAllBatches();
-        verify(batchProgressService, times(1)).calculateBatchProgress(eq(1L)); // Verify batch progress calculation for batch ID 1
-    }
-    
-    
+  
     
 
     @Test

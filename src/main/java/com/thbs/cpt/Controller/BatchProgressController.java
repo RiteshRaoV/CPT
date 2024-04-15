@@ -61,4 +61,14 @@ public class BatchProgressController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/{buId}")
+    public ResponseEntity<List<UserBatchProgressDTO>> getOverallBuProgress(@PathVariable Long buId){
+        List<UserBatchProgressDTO> progress=batchProgressService.calculateBuProgress(buId);
+        if(!progress.isEmpty()){
+            return ResponseEntity.ok(progress);
+        }else{
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

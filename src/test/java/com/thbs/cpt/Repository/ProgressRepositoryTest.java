@@ -56,21 +56,20 @@ public class ProgressRepositoryTest {
         long userId = 1L;
         int courseId = 1;
         double expectedCourseProgress = 70.0;
-
+    
         // Mock the repository method call to return sample data
         List<Object[]> sampleData = new ArrayList<>();
-        sampleData.add(new Object[] { courseId, userId, expectedCourseProgress });
-        when(progressRepository.findCourseProgressByUserAndCourse(anyLong(), anyInt())).thenReturn(sampleData);
-
+        sampleData.add(new Object[] { userId, expectedCourseProgress }); // Corrected the order of elements
+        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(sampleData);
+    
         // When
         List<Object[]> actualProgressList = progressRepository.findCourseProgressByUserAndCourse(userId, courseId);
-
+    
         // Then
-        assertEquals(1, actualProgressList.size());
+        assertEquals(1, actualProgressList.size()); // Check size of the returned list
         Object[] result = actualProgressList.get(0);
-        assertEquals(courseId, result[0]);
-        assertEquals(userId, result[1]);
-        assertEquals(expectedCourseProgress, result[2]);
+        assertEquals(userId, result[0]); // Corrected the index
+        assertEquals(expectedCourseProgress, result[1]); // Corrected the index
     }
 
     @Test
