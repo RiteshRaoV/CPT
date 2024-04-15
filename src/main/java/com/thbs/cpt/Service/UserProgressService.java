@@ -39,6 +39,7 @@ public class UserProgressService {
         return new RestTemplate();
     }
 
+
     public UserProgressDTO calculateOverallProgressForUser(Long userId) throws UserNotFoundException {
         List<Object[]> results = progressRepository.findOverallProgressForUser(userId);
         if (results != null && !results.isEmpty()) {

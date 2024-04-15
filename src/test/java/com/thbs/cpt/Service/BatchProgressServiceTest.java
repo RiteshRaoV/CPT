@@ -6,10 +6,13 @@ import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -33,6 +36,11 @@ class BatchProgressServiceTest {
     private BatchProgressService batchProgressService;
   
     
+@BeforeEach
+void setUp() {
+    // Initialize Mockito annotations
+    MockitoAnnotations.initMocks(this);
+}
 
 
     // Add similar test cases for other methods as needed
@@ -113,37 +121,29 @@ class BatchProgressServiceTest {
         // Then
         assertTrue(batchProgressList.isEmpty());
     }
-
+    ////
+   
 
 ///
 
 @Test
-void testFindBatchwiseProgressSuccess() {
+void testCalculateBatchProgressSuccess() {
     // Given
-    List<Object[]> sampleData = Arrays.asList(
-        new Object[] { 1L, 80.0 },
-        new Object[] { 2L, 75.0 }
-    );
-    when(batchProgressRepository.findAllBatches()).thenReturn(sampleData);
-    
-    // Mocking the behavior of calculateBatchProgress
-    when(batchProgressService.calculateBatchProgress(anyLong())).thenReturn(new BatchProgressDTO(1L, 80.0));
+    long batchId = 1L;
+    double expectedBatchProgress = 80.0; // Example progress value
+
+    // Mock the behavior of batchProgressRepository.findOverallBatchProgress(batchId)
+    // to return a list of results containing the progress for the specified batch ID
+    List<Object[]> sampleResults = new ArrayList<>();
+    sampleResults.add(new Object[] { expectedBatchProgress }); // Wrap the progress value in an object array
+    when(batchProgressRepository.findOverallBatchProgress(batchId)).thenReturn(sampleResults);
 
     // When
-    List<BatchWiseProgressDTO> batchProgressList = batchProgressService.findBatchwiseProgress();
+    BatchProgressDTO batchProgressDTO = batchProgressService.calculateBatchProgress(batchId);
 
     // Then
-    assertEquals(2, batchProgressList.size());
-
-    // Check the first batch progress
-    BatchWiseProgressDTO firstBatchProgress = batchProgressList.get(0);
-    assertEquals(1L, firstBatchProgress.getBatchId());
-    assertEquals(80.0, firstBatchProgress.getBatchProgress());
-
-    // Check the second batch progress
-    BatchWiseProgressDTO secondBatchProgress = batchProgressList.get(1);
-    assertEquals(2L, secondBatchProgress.getBatchId());
-    assertEquals(75.0, secondBatchProgress.getBatchProgress());
+    assertEquals(batchId, batchProgressDTO.getBatchId());
+    assertEquals(expectedBatchProgress, batchProgressDTO.getBatchProgress());
 }
 
 ///
@@ -180,4 +180,8 @@ void testFindBatchwiseProgressSuccess() {
             batchProgressService.calculateOverallBatchProgressAllUsers(batchId);
         });
     }
+
+
+
+
 }

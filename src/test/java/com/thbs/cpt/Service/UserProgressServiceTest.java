@@ -1,4 +1,5 @@
 package com.thbs.cpt.Service;
+import com.thbs.cpt.Controller.UserProgressController;
 import com.thbs.cpt.DTO.*;
 import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Exception.*;
@@ -24,6 +25,8 @@ class UserProgressServiceTest {
 
     @InjectMocks
     private UserProgressService userProgressService;
+    @InjectMocks
+    private UserProgressController userProgressController;
 
     @Test
     void testCalculateOverallProgressForUserSuccess() throws UserNotFoundException {
@@ -187,6 +190,25 @@ void testGetUserProgress() {
     assertEquals(50.0, result.getCourses().get(0).getTopics().get(0).getProgress());
     assertEquals(75.0, result.getCourses().get(0).getTopics().get(1).getProgress());
 }
+
+@Test
+    void testFindProgressByUserIdAndTopics() {
+        // Given
+        Long userId = 1L;
+        List<Long> topicIds = Arrays.asList(101L, 102L);
+        List<Object[]> sampleData = new ArrayList<>();
+        sampleData.add(new Object[]{1L, 0.5, 101L});
+        sampleData.add(new Object[]{2L, 0.8, 102L});
+        when(progressRepository.findProgressByUserIdAndTopics(userId, topicIds)).thenReturn(sampleData);
+
+        // When
+        List<ResourceProgressDTO> resourceProgressList = userProgressService.findProgressByUserIdAndTopics(userId, topicIds);
+
+        // Then
+        assertEquals(2, resourceProgressList.size());
+        assertEquals(0.5, resourceProgressList.get(0).getResourceMap().get(1L));
+        assertEquals(0.8, resourceProgressList.get(1).getResourceMap().get(2L));
+    }
 
 
 

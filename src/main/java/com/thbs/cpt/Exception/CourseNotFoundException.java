@@ -6,7 +6,5 @@ public class CourseNotFoundException extends NotFoundException {
         super(message);
     }
 
-    public CourseNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
+
 }

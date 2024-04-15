@@ -6,7 +6,5 @@ public class BatchIdNotFoundException extends NotFoundException {
         super(message);
     }
 
-    public BatchIdNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
+
 }

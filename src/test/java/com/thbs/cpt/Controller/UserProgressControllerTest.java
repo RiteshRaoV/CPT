@@ -194,22 +194,25 @@ class UserProgressControllerTest {
     @Test
     void testFindProgressByUserIdAndTopics() {
         // Mocking input data
-        UserTopicRequestDTO userTopicRequest = new UserTopicRequestDTO();
-        userTopicRequest.setUserId(1L);
-        userTopicRequest.setTopicIds(List.of(1L, 2L));
-
+        UserTopicRequestDTO userTopicRequest = new UserTopicRequestDTO(1L,List.of(1L, 2L));
+ 
         // Mocking service response
         List<ResourceProgressDTO> expectedProgressList = new ArrayList<>();
         // Populate expectedProgressList with some test data
-
+ 
         when(userProgressService.findProgressByUserIdAndTopics(1L, List.of(1L, 2L))).thenReturn(expectedProgressList);
-
+ 
         // Call the controller method
         List<ResourceProgressDTO> actualProgressList = userProgressController
                 .findProgressByUserIdAndTopics(userTopicRequest);
-
+ 
         // Assertions
         assertEquals(expectedProgressList, actualProgressList);
         verify(userProgressService, times(1)).findProgressByUserIdAndTopics(1L, List.of(1L, 2L));
     }
+    ///
+
+
+
+    
 }

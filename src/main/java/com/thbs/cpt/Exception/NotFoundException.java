@@ -11,10 +11,6 @@ public class NotFoundException extends Exception {
         this.httpStatus = HttpStatus.NOT_FOUND;
     }
 
-    public NotFoundException(String message, Throwable cause) {
-        super(message, cause);
-        this.httpStatus = HttpStatus.NOT_FOUND;
-    }
 
     public HttpStatus getHttpStatus() {
         return httpStatus;
