@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -100,5 +101,42 @@ class BatchProgressControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
         verify(batchProgressService, times(1)).calculateOverallBatchProgressAllUsers(batchId);
+    }
+
+    @Test
+    void testGetOverallBuProgressNotEmpty() {
+        // Sample data
+        String buName = "SampleBU";
+        List<UserBatchProgressDTO> progressList = new ArrayList<>();
+        progressList.add(new UserBatchProgressDTO(1L, 0.75));
+
+        // Stubbing batchProgressService.calculateBuProgress() method
+        when(batchProgressService.calculateBuProgress(buName)).thenReturn(progressList);
+
+        // Call the controller method
+        ResponseEntity<List<UserBatchProgressDTO>> responseEntity = batchProgressController.getOverallBuProgress(buName);
+
+        // Assertions
+        assertEquals(progressList, responseEntity.getBody());
+        assertEquals(200, responseEntity.getStatusCodeValue());
+
+        // Verify that batchProgressService.calculateBuProgress() is called once with the specified BU name
+        verify(batchProgressService, times(1)).calculateBuProgress(buName);
+    }
+
+    @Test
+    void testGetOverallBuProgressEmpty() {
+        // Sample data
+        String buName = "SampleBU";
+        List<UserBatchProgressDTO> emptyProgressList = new ArrayList<>();
+
+        // Stubbing batchProgressService.calculateBuProgress() method to return empty list
+        when(batchProgressService.calculateBuProgress(buName)).thenReturn(emptyProgressList);
+
+        // Call the controller method
+        ResponseEntity<List<UserBatchProgressDTO>> responseEntity = batchProgressController.getOverallBuProgress(buName);
+
+        // Assertions
+        assertEquals(404, responseEntity.getStatusCodeValue());
     }
 }
