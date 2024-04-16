@@ -3,6 +3,7 @@ import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
+import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.Service.BatchProgressService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,6 +108,7 @@ class BatchProgressControllerTest {
         verify(batchProgressService, times(1)).calculateOverallBatchProgressAllUsers(batchId);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void testGetOverallBuProgressNotEmpty() {
         // Sample data
@@ -128,6 +130,7 @@ class BatchProgressControllerTest {
         verify(batchProgressService, times(1)).calculateBuProgress(buName);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void testGetOverallBuProgressEmpty() {
         // Sample data
@@ -145,6 +148,7 @@ class BatchProgressControllerTest {
     }
     /// test bu overall 
 
+    @SuppressWarnings("null")
     @Test
     void testGetOverallBUnitProgress_Success() {
         // Mocking the batchProgressService to return a non-null BUProgressDTO
@@ -205,4 +209,21 @@ class BatchProgressControllerTest {
         // Verifying the batchProgressService method call
         verify(batchProgressService, times(1)).findOverallBUProgress("TestBU");
     }
+    
+
+    @Test
+    public void testGetCourseProgressOfUsersInBatch_EmptyResponse() {
+        // Mocking
+        long batchId = 123;
+        long courseId = 456;
+
+        when(batchProgressService.calculateCourseProgressOfUsersInBatch(batchId, courseId)).thenReturn(new ArrayList<>());
+
+        // Execution
+        ResponseEntity<List<UserCourseProgressDTO>> responseEntity = batchProgressController.getCourseProgressOfUsersInBatch(batchId, courseId);
+
+        // Assertion
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    }
+
 }

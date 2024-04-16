@@ -7,9 +7,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -139,20 +136,20 @@ public class UserProgressService {
         return null;
     }
     
-    private CourseDTO findOrCreateCourse(List<CourseDTO> courses, long courseId,long userId) {
-        for (CourseDTO courseDTO : courses) {
-            if (courseDTO.getCourseId() == courseId) {
-                return courseDTO;
-            }
-        }
-        CourseDTO newCourseDTO = new CourseDTO();
-        newCourseDTO.setCourseId(courseId);
-        newCourseDTO.setTopics(new ArrayList<>());
-        UserCourseProgressDTO progress = calculateCourseProgressForUser(userId, courseId);
-        newCourseDTO.setCourseProgress(progress.getCourseProgress());
-        courses.add(newCourseDTO);
-        return newCourseDTO;
-    }
+    // private CourseDTO findOrCreateCourse(List<CourseDTO> courses, long courseId,long userId) {
+    //     for (CourseDTO courseDTO : courses) {
+    //         if (courseDTO.getCourseId() == courseId) {
+    //             return courseDTO;
+    //         }
+    //     }
+    //     CourseDTO newCourseDTO = new CourseDTO();
+    //     newCourseDTO.setCourseId(courseId);
+    //     newCourseDTO.setTopics(new ArrayList<>());
+    //     UserCourseProgressDTO progress = calculateCourseProgressForUser(userId, courseId);
+    //     newCourseDTO.setCourseProgress(progress.getCourseProgress());
+    //     courses.add(newCourseDTO);
+    //     return newCourseDTO;
+    // }
 
     public void updateProgress(long userId, double resourceProgress, long resourceId) {
         Progress progress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
@@ -178,25 +175,31 @@ public class UserProgressService {
         return new ArrayList<>(resourceProgressMap.values());
     }
     
-    private void updateProgressForUsersInBatch(Long batchId, Long resourceId) {
-        // Make a REST API call to the User Module to get the list of user IDs in the batch
-        String uri = "http://localhost:1111/batch/{batchId}/users";
-        ResponseEntity<List<Long>> response = restTemplate().exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, batchId);
-        List<Long> userIds = response.getBody();
     
-        // For each user in the batch
-        for (Long userId : userIds) {
-            // Check if progress already exists for the user and resource ID combination
-            Progress existingProgress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
-            if (existingProgress == null) {
-                // If progress doesn't exist, create a new progress entry and set completion percentage to 0
-                Progress progress = new Progress();
-                progress.setUserId(userId);
-                progress.setBatchId(batchId);
-                progress.setResourceId(resourceId);
-                progress.setCompletionPercentage(0.0);
-                progressRepository.save(progress);
-            }
-        }    
-    }  
+    
+    // private void updateProgressForUsersInBatch(Long batchId) {
+    //     RestTemplate restTemplate=new RestTemplate();
+
+    //     String uri = "http://localhost:1111/batch/{batchId}/users";
+    //     // Make a REST API call to the User Module to get the list of user IDs in the batch
+    //     @SuppressWarnings("unchecked")
+    //     List<Long> userIds = restTemplate.getForObject(uri , List.class, batchId);
+     
+    //     // Retrieve the saved resources for the batch
+    //     List<Resource> resources = progressRepository.findByBatchId(batchId);
+     
+    //     // For each resource in the batch
+    //     for (Resource resource : resources) {
+    //         // For each user in the batch, set the completion percentage of the resource to 0
+    //         for (Long userId : userIds) {
+    //             Progress progress = new Progress();
+    //             progress.setUserId(userId);
+    //             progress.setBatchId(batchId);
+    //             progress.setResourceId(resource.getResourceId());
+    //             progress.setCompletionPercentage(0.0);
+    //             progressRepository.save(progress);
+    //         }
+    //     }
+    // }
+    
 }

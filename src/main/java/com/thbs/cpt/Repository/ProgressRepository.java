@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.thbs.cpt.Entity.Progress;
+import com.thbs.cpt.Entity.Resource;
 
 @Repository
 public interface ProgressRepository extends JpaRepository<Progress, Long> {
@@ -88,5 +89,7 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
                "ORDER BY lr.topic_id ASC",nativeQuery = true)
      List<Object[]> findProgressByUserIdAndTopics(@Param("userId") Long userId,
                @Param("topicIds") List<Long> topicIds);
+
+    List<Resource> findByBatchId(Long batchId);
 
 }
