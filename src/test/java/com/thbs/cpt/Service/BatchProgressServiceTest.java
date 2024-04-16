@@ -5,7 +5,6 @@ import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
-import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
 
@@ -40,6 +39,7 @@ class BatchProgressServiceTest {
     @InjectMocks
     private BatchProgressService batchProgressService;
 
+    @SuppressWarnings("deprecation")
     @BeforeEach
     void setUp() {
         // Initialize Mockito annotations
@@ -188,6 +188,7 @@ class BatchProgressServiceTest {
     @Test
     void testFindOverallBUProgress() {
         // Create a new instance of BatchProgressService
+        @SuppressWarnings("unused")
         BatchProgressService batchProgressService = new BatchProgressService();
 
         // Simulate the input data
