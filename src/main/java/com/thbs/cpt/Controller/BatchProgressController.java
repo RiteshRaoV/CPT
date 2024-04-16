@@ -14,6 +14,7 @@ import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
+import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.Service.BatchProgressService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,6 +59,16 @@ public class BatchProgressController {
         List<UserBatchProgressDTO> progressList = batchProgressService.calculateOverallBatchProgressAllUsers(batchId);
         if (!progressList.isEmpty()) {
             return ResponseEntity.ok(progressList);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/all-users/{batchId}/course/{courseId}")
+    public ResponseEntity<List<UserCourseProgressDTO>> getCourseProgressOfUsersInBatch(@PathVariable long batchId ,@PathVariable long courseId){
+        List<UserCourseProgressDTO> progress=batchProgressService.calculateCourseProgressOfUsersInBatch(batchId,courseId);
+        if (!progress.isEmpty()) {
+            return ResponseEntity.ok(progress);
         } else {
             return ResponseEntity.notFound().build();
         }

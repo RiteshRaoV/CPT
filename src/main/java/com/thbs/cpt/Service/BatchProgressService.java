@@ -16,6 +16,7 @@ import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
+import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
@@ -120,5 +121,24 @@ public class BatchProgressService {
         } else {
             throw new BatchIdNotFoundException("No users found for batch with ID " + buName);
         }
+    }
+
+    public List<UserCourseProgressDTO> calculateCourseProgressOfUsersInBatch(long batchId,long courseId){
+        List<Object[]> userFromQuery=batchProgressRepository.findAllUsers(batchId);
+        List<Long> users=new ArrayList();
+        for(Object[] id: userFromQuery){
+            long userId=(long) id[0];
+            users.add(userId); 
+        }
+        List<Object[]> results=batchProgressRepository.findCourseProgressByUserAndCourseInBatch(users,courseId);
+        List<UserCourseProgressDTO> progress=new ArrayList<>();
+        if(results!=null && !results.isEmpty()){
+            for(Object[] res:results){
+                long userId=(long) res[1];
+                double courseProgress=(double) res[2];
+                progress.add(new UserCourseProgressDTO(userId, courseProgress));
+            }
+        }
+        return progress;
     }
 }
