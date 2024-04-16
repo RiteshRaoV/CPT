@@ -108,7 +108,7 @@ public class UserProgressController {
         }
     }
 
-    @Operation(summary = "to get the list of resource progress for given list of topic ids")
+    @Operation(summary = "gives list of resource progress for given list of topic ids")
     @PostMapping("/resource-progress")
     public List<ResourceProgressDTO> findProgressByUserIdAndTopics(@RequestBody UserTopicRequestDTO userTopicRequest) {
         Long userId = userTopicRequest.getUserId();
