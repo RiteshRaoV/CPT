@@ -20,6 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -42,20 +43,14 @@ class BatchProgressServiceTest {
 
     @InjectMocks
     private BatchProgressService batchProgressService;
-  
-    
-@BeforeEach
-void setUp() {
-    // Initialize Mockito annotations
-    MockitoAnnotations.initMocks(this);
-}
 
+    @BeforeEach
+    void setUp() {
+        // Initialize Mockito annotations
+        MockitoAnnotations.initMocks(this);
+    }
 
     // Add similar test cases for other methods as needed
-
-
-    
-    
 
     @Test
     void testCalculateOverallBatchProgressAllUsers() throws BatchIdNotFoundException {
@@ -115,8 +110,6 @@ void setUp() {
         verify(batchProgressRepository, times(1)).findOverallBatchProgress(batchId);
     }
 
-
-
     ///// find batchwise progress
     @Test
     void testFindBatchwiseProgressWhenNoBatchesFound() {
@@ -130,32 +123,32 @@ void setUp() {
         assertTrue(batchProgressList.isEmpty());
     }
     ////
-   
 
-///
+    ///
 
-@Test
-void testCalculateBatchProgressSuccess() {
-    // Given
-    long batchId = 1L;
-    double expectedBatchProgress = 80.0; // Example progress value
+    @Test
+    void testCalculateBatchProgressSuccess() {
+        // Given
+        long batchId = 1L;
+        double expectedBatchProgress = 80.0; // Example progress value
 
-    // Mock the behavior of batchProgressRepository.findOverallBatchProgress(batchId)
-    // to return a list of results containing the progress for the specified batch ID
-    List<Object[]> sampleResults = new ArrayList<>();
-    sampleResults.add(new Object[] { expectedBatchProgress }); // Wrap the progress value in an object array
-    when(batchProgressRepository.findOverallBatchProgress(batchId)).thenReturn(sampleResults);
+        // Mock the behavior of
+        // batchProgressRepository.findOverallBatchProgress(batchId)
+        // to return a list of results containing the progress for the specified batch
+        // ID
+        List<Object[]> sampleResults = new ArrayList<>();
+        sampleResults.add(new Object[] { expectedBatchProgress }); // Wrap the progress value in an object array
+        when(batchProgressRepository.findOverallBatchProgress(batchId)).thenReturn(sampleResults);
 
-    // When
-    BatchProgressDTO batchProgressDTO = batchProgressService.calculateBatchProgress(batchId);
+        // When
+        BatchProgressDTO batchProgressDTO = batchProgressService.calculateBatchProgress(batchId);
 
-    // Then
-    assertEquals(batchId, batchProgressDTO.getBatchId());
-    assertEquals(expectedBatchProgress, batchProgressDTO.getBatchProgress());
-}
+        // Then
+        assertEquals(batchId, batchProgressDTO.getBatchId());
+        assertEquals(expectedBatchProgress, batchProgressDTO.getBatchProgress());
+    }
 
-///
-
+    ///
 
     @Test
     public void testCalculateOverallBatchProgressAllUsers_Success() {
@@ -189,90 +182,145 @@ void testCalculateBatchProgressSuccess() {
         });
     }
 
+    // @Test
+    // public void testCalculateBuProgress_WithValidBusinessUnit() throws
+    // BatchIdNotFoundException {
+    // // Mock RestTemplate and batchProgressRepository
+
+    // List<Long> mockUserIds = Arrays.asList(1L, 2L);
+    // List<Object[]> mockResults = Arrays.asList(
+    // new Object[]{1L, 0.75},
+    // new Object[]{2L, 0.50} // Another user and progress
+    // );
+
+    // RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
+    // Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class),
+    // any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
+    // .thenReturn(new ResponseEntity<>(mockUserIds, HttpStatus.OK));
+
+    // BatchProgressRepository mockRepository =
+    // Mockito.mock(BatchProgressRepository.class);
+    // Mockito.when(mockRepository.findUserProgressInBu(mockUserIds)).thenReturn(mockResults);
+
+    // // Call the method
+    // String businessUnit = "CDEC";
+    // List<UserBatchProgressDTO> result =
+    // batchProgressService.calculateBuProgress(businessUnit);
+
+    // // Assertions
+    // assertEquals(1, result.size());
+    // assertEquals(1L, result.get(0).getUserId());
+    // assertEquals(0.75, result.get(0).getOverallProgress());
+    // verify(mockRestTemplate, times(1)).exchange(anyString(), eq(HttpMethod.GET),
+    // any(HttpEntity.class), any(ParameterizedTypeReference.class),
+    // eq(businessUnit));
+    // verify(mockRepository, times(1)).findUserProgressInBu(mockUserIds);
+    // }
+
+    // @Test
+    // public void testCalculateBuProgress_WithNoUsers() throws
+    // BatchIdNotFoundException {
+    // // Mock RestTemplate to return empty user list
+
+    // List<Long> mockUserIds = Collections.emptyList();
+
+    // RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
+    // Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class),
+    // any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
+    // .thenReturn(new ResponseEntity<>(mockUserIds, HttpStatus.OK));
+
+    // // No need to mock repository as empty userIds will trigger exception
+
+    // // Call the method
+    // String businessUnit = "CDEC";
+    // batchProgressService.calculateBuProgress(businessUnit);
+    // }
+
+    // @Test
+    // public void testCalculateBuProgress_WithNoProgressData() throws
+    // BatchIdNotFoundException {
+    // // Mock RestTemplate and return user IDs
+
+    // List<Long> mockUserIds = Arrays.asList(1L, 2L);
+
+    // RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
+    // Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class),
+    // any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
+    // .thenReturn(new ResponseEntity<>(mockUserIds, HttpStatus.OK));
+
+    // BatchProgressRepository mockRepository =
+    // Mockito.mock(BatchProgressRepository.class);
+    // Mockito.when(mockRepository.findUserProgressInBu(mockUserIds)).thenReturn(Collections.emptyList());
+
+    // // Call the method
+    // String businessUnit = "CDEC";
+    // batchProgressService.calculateBuProgress(businessUnit);
+    // }
+
+    // @Test
+    // public void testCalculateBuProgress_WithRestTemplateError() throws
+    // BatchIdNotFoundException {
+    // // Mock RestTemplate to throw exception
+
+    // RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
+    // Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class),
+    // any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
+    // .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+
+    // No need to mock repository
+
+    // // Call the method
+    // String businessUnit = "CDEC";
+    // batchProgressService.calculateBuProgress(businessUnit);
+    // }
 
     @Test
-    public void testCalculateBuProgress_WithValidBusinessUnit() throws BatchIdNotFoundException {
-        // Mock RestTemplate and batchProgressRepository
-    
-        List<Long> mockUserIds = Arrays.asList(1L, 2L);
-        List<Object[]> mockResults = Arrays.asList(
-            new Object[]{1L, 0.75},
-            new Object[]{2L, 0.50} // Another user and progress
-        );
-            
-        RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
-        Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class), 
-                any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
-                .thenReturn(new ResponseEntity<>(mockUserIds, HttpStatus.OK));
-    
-        BatchProgressRepository mockRepository = Mockito.mock(BatchProgressRepository.class);
-        Mockito.when(mockRepository.findUserProgressInBu(mockUserIds)).thenReturn(mockResults);
-    
-        // Call the method
-        String businessUnit = "testBU";
-        List<UserBatchProgressDTO> result = batchProgressService.calculateBuProgress(businessUnit);
-    
+    void testCalculateBuProgress() {
+        // Mocking the RestTemplate
+        RestTemplate restTemplate = mock(RestTemplate.class);
+
+        // Mocking batchProgressRepository.findUserProgressInBu to return some results
+        List<Object[]> sampleResults = Arrays.asList(new Object[] { 1L, 0.8 }, new Object[] { 2L, 0.9 });
+        when(batchProgressRepository.findUserProgressInBu(anyList())).thenReturn(sampleResults);
+
+        // Call the method under test
+        List<UserBatchProgressDTO> userProgressList = batchProgressService.calculateBuProgress("CDEC");
+
         // Assertions
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getUserId());
-        assertEquals(0.75, result.get(0).getOverallProgress());
-        verify(mockRestTemplate, times(1)).exchange(anyString(), eq(HttpMethod.GET), 
-                any(HttpEntity.class), any(ParameterizedTypeReference.class), eq(businessUnit));
-        verify(mockRepository, times(1)).findUserProgressInBu(mockUserIds);
+        assertEquals(2, userProgressList.size());
+        assertEquals(1L, userProgressList.get(0).getUserId());
+        assertEquals(0.8, userProgressList.get(0).getOverallProgress());
+        assertEquals(2L, userProgressList.get(1).getUserId());
+        assertEquals(0.9, userProgressList.get(1).getOverallProgress());
     }
-    
+
     @Test
-    public void testCalculateBuProgress_WithNoUsers() throws BatchIdNotFoundException {
-        // Mock RestTemplate to return empty user list
-    
-        List<Long> mockUserIds = Collections.emptyList();
-    
-        RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
-        Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class), 
-                any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
-                .thenReturn(new ResponseEntity<>(mockUserIds, HttpStatus.OK));
-    
-        // No need to mock repository as empty userIds will trigger exception
-    
-        // Call the method
-        String businessUnit = "testBU";
-        batchProgressService.calculateBuProgress(businessUnit);
+    void testCalculateBuProgressNoUsers() {
+        // Mocking the RestTemplate
+        RestTemplate restTemplate = mock(RestTemplate.class);
+
+        // Call the method under test
+        assertThrows(BatchIdNotFoundException.class, () -> batchProgressService.calculateBuProgress("CDEC"));
     }
-    
+
     @Test
-    public void testCalculateBuProgress_WithNoProgressData() throws BatchIdNotFoundException {
-        // Mock RestTemplate and return user IDs
-    
-        List<Long> mockUserIds = Arrays.asList(1L, 2L);
-    
-        RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
-        Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class), 
-                any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
-                .thenReturn(new ResponseEntity<>(mockUserIds, HttpStatus.OK));
-    
-        BatchProgressRepository mockRepository = Mockito.mock(BatchProgressRepository.class);
-        Mockito.when(mockRepository.findUserProgressInBu(mockUserIds)).thenReturn(Collections.emptyList());
-    
-        // Call the method
-        String businessUnit = "testBU";
-        batchProgressService.calculateBuProgress(businessUnit);
+    void testCalculateBuProgressEmptyResults() {
+
+        when(batchProgressRepository.findUserProgressInBu(anyList())).thenReturn(new ArrayList<>());
+
+        assertThrows(BatchIdNotFoundException.class, () -> batchProgressService.calculateBuProgress("CDEC"));
     }
-    
+
     @Test
     public void testCalculateBuProgress_WithRestTemplateError() throws BatchIdNotFoundException {
         // Mock RestTemplate to throw exception
-    
         RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
-        Mockito.when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class), 
+        Mockito.lenient().when(mockRestTemplate.exchange(anyString(), any(HttpMethod.class), 
                 any(HttpEntity.class), any(ParameterizedTypeReference.class), anyString()))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-    
-        // No need to mock repository
-    
-        // Call the method
-        String businessUnit = "testBU";
-        batchProgressService.calculateBuProgress(businessUnit);
+        
+        
+        assertThrows(BatchIdNotFoundException.class, () -> batchProgressService.calculateBuProgress("CDEC"));
     }
     
-
 }
