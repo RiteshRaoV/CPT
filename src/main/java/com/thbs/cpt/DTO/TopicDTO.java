@@ -12,4 +12,5 @@ import lombok.Setter;
 public class TopicDTO {
     private long topicId;
     private double progress;
+   
 }

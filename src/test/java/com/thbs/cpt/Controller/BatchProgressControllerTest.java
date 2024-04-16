@@ -1,4 +1,5 @@
 package com.thbs.cpt.Controller;
+import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
@@ -17,6 +18,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+//
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 class BatchProgressControllerTest {
@@ -138,5 +142,67 @@ class BatchProgressControllerTest {
 
         // Assertions
         assertEquals(404, responseEntity.getStatusCodeValue());
+    }
+    /// test bu overall 
+
+    @Test
+    void testGetOverallBUnitProgress_Success() {
+        // Mocking the batchProgressService to return a non-null BUProgressDTO
+        BUProgressDTO mockProgress = new BUProgressDTO("TestBU", 75.0);
+        when(batchProgressService.findOverallBUProgress("TestBU")).thenReturn(mockProgress);
+
+        // Calling the controller method
+        ResponseEntity<BUProgressDTO> response = batchProgressController.getOverallBUnitProgress("TestBU");
+
+        // Assertions
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("TestBU", response.getBody().getBuName());
+        assertEquals(75.0, response.getBody().getOverallProgress());
+    }
+
+    @Test
+    void testGetOverallBUnitProgress_NotFound() {
+        // Mocking the batchProgressService to return null
+        when(batchProgressService.findOverallBUProgress("NonExistentBU")).thenReturn(null);
+
+        // Calling the controller method
+        ResponseEntity<BUProgressDTO> response = batchProgressController.getOverallBUnitProgress("NonExistentBU");
+
+        // Assertions
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+
+  
+
+    @Test
+    void testGetOverallBUnitProgress_InvalidInput() {
+        // Calling the controller method with an empty buName
+        ResponseEntity<BUProgressDTO> responseEmpty = batchProgressController.getOverallBUnitProgress("");
+
+        // Assertions for empty buName
+        assertNotNull(responseEmpty);
+      
+        assertNull(responseEmpty.getBody());
+
+        // Calling the controller method with null buName
+        ResponseEntity<BUProgressDTO> responseNull = batchProgressController.getOverallBUnitProgress(null);
+
+        // Assertions for null buName
+        assertNotNull(responseNull);
+       
+        assertNull(responseNull.getBody());
+    }
+
+    @Test
+    void testGetOverallBUnitProgress_VerifyServiceCall() {
+        // Calling the controller method
+        batchProgressController.getOverallBUnitProgress("TestBU");
+
+        // Verifying the batchProgressService method call
+        verify(batchProgressService, times(1)).findOverallBUProgress("TestBU");
     }
 }

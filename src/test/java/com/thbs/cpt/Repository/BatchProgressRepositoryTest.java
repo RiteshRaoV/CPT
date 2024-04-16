@@ -1,10 +1,15 @@
 package com.thbs.cpt.Repository;
 
+import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Service.BatchProgressService;
+
+import io.swagger.v3.oas.models.PathItem.HttpMethod;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -12,7 +17,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+///
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -22,6 +33,8 @@ public class BatchProgressRepositoryTest {
 
     @InjectMocks
     private BatchProgressService batchProgressService;
+    @Mock
+    private BatchProgressRepository batchProgressRepository;
 
     @Test
     void testFindOvreallProgressOfUsersInABatch() {
@@ -83,6 +96,42 @@ public class BatchProgressRepositoryTest {
             assertEquals(expectedProgress[1], actualProgress[1]);
         }
     }
+
+    //// overall bu test
+    @Test
+    void testFindOverallBUProgress() {
+        // Mock the expected query result
+        List<Object[]> expectedResults = new ArrayList<>();
+        Object[] result1 = { 1L, 50.0 };
+        Object[] result2 = { 2L, 75.0 };
+        expectedResults.add(result1);
+        expectedResults.add(result2);
+
+        // Mock the repository method call
+        List<Long> userIds = Arrays.asList(1L, 2L);
+        when(batchProgressRepository.findOverallBUProgress(userIds)).thenReturn(expectedResults);
+
+        // Call the repository method
+        List<Object[]> actualResults = batchProgressRepository.findOverallBUProgress(userIds);
+
+        // Verify the repository method was called with the correct argument
+        verify(batchProgressRepository, times(1)).findOverallBUProgress(userIds);
+
+        // Verify the returned results match the expected results
+        assertEquals(expectedResults.size(), actualResults.size());
+        for (int i = 0; i < expectedResults.size(); i++) {
+            Object[] expected = expectedResults.get(i);
+            Object[] actual = actualResults.get(i);
+            assertEquals(expected.length, actual.length);
+            for (int j = 0; j < expected.length; j++) {
+                assertEquals(expected[j], actual[j]);
+            }
+        }
+    } 
+
+
+
+
 
 
 }
