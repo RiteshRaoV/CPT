@@ -16,9 +16,12 @@ import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
+import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
 import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
+import com.thbs.cpt.Exception.CourseNotFoundException;
+import com.thbs.cpt.Exception.UserNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
 
 import ch.qos.logback.classic.Logger;
@@ -83,9 +86,17 @@ public class BatchProgressService {
         RestTemplate restTemplate=new RestTemplate();
         ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buisnessUnit);
         List<Long> userIds = response.getBody();
-        List<Progress> users=batchProgressRepository.findAllById(userIds);
-        if (users!=null && !users.isEmpty()) {
-            List<Object[]> results = batchProgressRepository.findUserProgressInBu(userIds);
+        List<Progress> users=new ArrayList<>();
+        for(Long id:userIds){
+            List<Progress> temp=batchProgressRepository.findAllByUserId(id);
+            users.addAll(temp);
+        }
+        List<Long> resId=new ArrayList<>();
+        for(Progress user:users){
+            resId.add(user.getUserId());
+        }
+        if (resId!=null && !resId.isEmpty()) {
+            List<Object[]> results = batchProgressRepository.findUserProgressInBu(resId);
             if (!results.isEmpty()) {
                 List<UserBatchProgressDTO> userProgressList = new ArrayList<>();
                 for (Object[] result : results) {
@@ -107,9 +118,17 @@ public class BatchProgressService {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buName);
         List<Long> userIds = response.getBody();
-        List<Progress> users=batchProgressRepository.findAllById(userIds);
-        if (users != null && !users.isEmpty()) {
-            List<Object[]> result = batchProgressRepository.findOverallBUProgress(userIds);
+        List<Progress> users=new ArrayList<>();
+        for(Long id:userIds){
+            List<Progress> temp=batchProgressRepository.findAllByUserId(id);
+            users.addAll(temp);
+        }
+        List<Long> resId=new ArrayList<>();
+        for(Progress user:users){
+            resId.add(user.getUserId());
+        }
+        if (resId!=null && !resId.isEmpty()) {
+            List<Object[]> result = batchProgressRepository.findOverallBUProgress(resId);
             if (!result.isEmpty()) {
                 Object[] res = result.get(0);
                 double progress=(double) res[0];
@@ -119,6 +138,39 @@ public class BatchProgressService {
             }
         } else {
             throw new BatchIdNotFoundException("No users found for batch with ID " + buName);
+        }
+    }
+
+    public List<UserCourseProgressDTO> calculateCourseProgressOfUsersInBatch(long batchId, long courseId) {
+        try {
+            List<Object[]> userFromQuery = batchProgressRepository.findAllUsers(batchId);
+            if (userFromQuery.isEmpty()) {
+                throw new UserNotFoundException("No users found for the batch: " + batchId);
+            }
+
+            List<Long> users = new ArrayList<>();
+            for (Object[] id : userFromQuery) {
+                long userId = (long) id[0];
+                users.add(userId);
+            }
+
+            List<Object[]> results = batchProgressRepository.findCourseProgressByUserAndCourseInBatch(users, courseId);
+            if (results.isEmpty()) {
+                throw new CourseNotFoundException("Course not found with ID: " + courseId);
+            }
+
+            List<UserCourseProgressDTO> progress = new ArrayList<>();
+            for (Object[] res : results) {
+                long userId = (long) res[1];
+                double courseProgress = (double) res[2];
+                progress.add(new UserCourseProgressDTO(userId, courseProgress));
+            }
+            return progress;
+        } catch (BatchIdNotFoundException | CourseNotFoundException e) {
+            throw e; 
+        } catch (Exception e) {
+            e.printStackTrace(); // Log other unexpected exceptions
+            throw new RuntimeException("An unexpected error occurred", e);
         }
     }
 }

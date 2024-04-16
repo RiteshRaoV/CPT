@@ -14,6 +14,7 @@ import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
+import com.thbs.cpt.DTO.UserCourseProgressDTO;
 import com.thbs.cpt.Service.BatchProgressService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,7 +64,19 @@ public class BatchProgressController {
         }
     }
 
+    @GetMapping("/all-users/{batchId}/course/{courseId}")
+    @Operation(summary  = "gives the overall course progress of all the users in the batch")
+    public ResponseEntity<List<UserCourseProgressDTO>> getCourseProgressOfUsersInBatch(@PathVariable long batchId ,@PathVariable long courseId){
+        List<UserCourseProgressDTO> progress=batchProgressService.calculateCourseProgressOfUsersInBatch(batchId,courseId);
+        if (!progress.isEmpty()) {
+            return ResponseEntity.ok(progress);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/bu-progress/{buName}")
+    @Operation(summary  = "gives the overall progress of all the users in the bu")
     public ResponseEntity<List<UserBatchProgressDTO>> getOverallBuProgress(@PathVariable String buName){
         List<UserBatchProgressDTO> progress=batchProgressService.calculateBuProgress(buName);
         if(!progress.isEmpty()){
@@ -74,6 +87,7 @@ public class BatchProgressController {
     }
     
     @GetMapping("/bu-overall-progress/{buName}")
+    @Operation(summary  = "gives the overall bu progress")
     public ResponseEntity <BUProgressDTO> getOverallBUnitProgress(@PathVariable String buName) {
         BUProgressDTO progress = batchProgressService.findOverallBUProgress(buName);
         if (progress!=null) {
