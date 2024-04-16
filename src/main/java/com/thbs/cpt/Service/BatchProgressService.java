@@ -17,6 +17,7 @@ import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
 import com.thbs.cpt.DTO.UserProgressDTO;
+import com.thbs.cpt.Entity.Progress;
 import com.thbs.cpt.Exception.BatchIdNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
 
@@ -82,8 +83,8 @@ public class BatchProgressService {
         RestTemplate restTemplate=new RestTemplate();
         ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buisnessUnit);
         List<Long> userIds = response.getBody();
-        
-        if (userIds != null && !userIds.isEmpty()) {
+        List<Progress> users=batchProgressRepository.findAllById(userIds);
+        if (users!=null && !users.isEmpty()) {
             List<Object[]> results = batchProgressRepository.findUserProgressInBu(userIds);
             if (!results.isEmpty()) {
                 List<UserBatchProgressDTO> userProgressList = new ArrayList<>();
@@ -106,8 +107,8 @@ public class BatchProgressService {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buName);
         List<Long> userIds = response.getBody();
-
-        if (userIds != null && !userIds.isEmpty()) {
+        List<Progress> users=batchProgressRepository.findAllById(userIds);
+        if (users != null && !users.isEmpty()) {
             List<Object[]> result = batchProgressRepository.findOverallBUProgress(userIds);
             if (!result.isEmpty()) {
                 Object[] res = result.get(0);
