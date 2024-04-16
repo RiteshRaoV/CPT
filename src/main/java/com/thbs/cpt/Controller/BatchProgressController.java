@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
@@ -68,6 +69,16 @@ public class BatchProgressController {
         if(!progress.isEmpty()){
             return ResponseEntity.ok(progress);
         }else{
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @GetMapping("/bu-overall-progress/{buName}")
+    public ResponseEntity <BUProgressDTO> getOverallBUnitProgress(@PathVariable String buName) {
+        BUProgressDTO progress = batchProgressService.findOverallBUProgress(buName);
+        if (progress!=null) {
+            return ResponseEntity.ok(progress);
+        } else {
             return ResponseEntity.notFound().build();
         }
     }

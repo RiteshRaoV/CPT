@@ -83,6 +83,17 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
     "GROUP BY user_id", nativeQuery = true)
     List<Object[]> findUserProgressInBu(List<Long> userIds);
 
+    @Query(value = "SELECT AVG(course_progress) AS overall_progress "+
+     "FROM ( "+
+     "    SELECT p.user_id, (SUM(p.completion_percentage) / COUNT(p.user_id)) AS course_progress "+
+     "    FROM Progress p "+
+     "    JOIN Resource r ON p.resource_id = r.resource_id "+
+     "    JOIN learning_resource lr ON r.learning_resource_id = lr.learning_resource_id "+
+     "    WHERE p.user_id IN :userIds "+
+     "    GROUP BY p.user_id "+
+     ") AS cp;", nativeQuery = true)
+List<Object[]> findOverallBUProgress(List<Long> userIds);
+
     // Fetches all the batch id's from the progress entity
     @Query(value = "SELECT DISTINCT batch_id FROM Progress",nativeQuery = true)
     List<Object[]> findAllBatches();

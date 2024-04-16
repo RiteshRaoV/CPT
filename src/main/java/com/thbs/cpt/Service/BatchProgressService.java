@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.thbs.cpt.DTO.BUProgressDTO;
 import com.thbs.cpt.DTO.BatchProgressDTO;
 import com.thbs.cpt.DTO.BatchWiseProgressDTO;
 import com.thbs.cpt.DTO.UserBatchProgressDTO;
@@ -100,4 +101,23 @@ public class BatchProgressService {
         }
     }
     
+    public BUProgressDTO findOverallBUProgress(String buName) {
+        String uri = "http://172.18.4.185:7001/user/byBusinessUnit/{buName}";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buName);
+        List<Long> userIds = response.getBody();
+
+        if (userIds != null && !userIds.isEmpty()) {
+            List<Object[]> result = batchProgressRepository.findOverallBUProgress(userIds);
+            if (!result.isEmpty()) {
+                Object[] res = result.get(0);
+                double progress=(double) res[0];
+                return new BUProgressDTO(buName, progress);
+            } else {
+                throw new BatchIdNotFoundException("No progress found for users in batch with ID " + buName);
+            }
+        } else {
+            throw new BatchIdNotFoundException("No users found for batch with ID " + buName);
+        }
+    }
 }
