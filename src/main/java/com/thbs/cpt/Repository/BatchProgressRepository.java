@@ -114,5 +114,6 @@ public interface BatchProgressRepository extends JpaRepository<Progress, Long> {
     @Query(value = "SELECT DISTINCT user_id FROM progress where batch_id= :batchId ", nativeQuery = true)
     List<Object[]> findAllUsers(long batchId);
 
+    List<Progress> findAllByUserId(Long userId);
 
 }
