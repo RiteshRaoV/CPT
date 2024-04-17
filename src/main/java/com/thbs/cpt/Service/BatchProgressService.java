@@ -157,7 +157,7 @@ public class BatchProgressService {
                 users.add(userId);
             }
 
-            List<Object[]> results = batchProgressRepository.findCourseProgressByUserAndCourseInBatch(users, courseId);
+            List<Object[]> results = batchProgressRepository.findCourseProgressByUserAndCourseInBatch(users,batchId, courseId);
             if (results.isEmpty()) {
                 throw new CourseNotFoundException("Course not found with ID: " + courseId);
             }
