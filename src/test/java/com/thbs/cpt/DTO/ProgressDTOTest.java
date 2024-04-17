@@ -14,10 +14,12 @@ public class ProgressDTOTest {
     void testConstructorAndGetters() {
         // Create sample data
         Long userId = 1L;
+        long batchId = 1L;
+
         List<CourseDTO> courses = Arrays.asList(new CourseDTO(1L, 50.0, null), new CourseDTO(2L, 75.0, null));
 
         // Create a ProgressDTO object
-        ProgressDTO progressDTO = new ProgressDTO(userId, courses);
+        ProgressDTO progressDTO = new ProgressDTO(userId,batchId, courses);
 
         // Check if constructor and getters work correctly
         assertEquals(userId, progressDTO.getUserId());

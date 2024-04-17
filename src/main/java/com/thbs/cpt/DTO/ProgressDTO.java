@@ -14,5 +14,6 @@ import lombok.Setter;
 public class ProgressDTO {
     
     private Long userId;
+    private Long batchId;
     private List<CourseDTO> courses;
 }

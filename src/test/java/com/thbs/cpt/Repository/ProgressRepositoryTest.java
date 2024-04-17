@@ -34,14 +34,15 @@ public class ProgressRepositoryTest {
         // Given
         long userId = 1L;
         double expectedOverallProgress = 80.0;
+        long batchId = 1L;
 
         // Mock the repository method call to return sample data
         List<Object[]> sampleData = new ArrayList<>();
         sampleData.add(new Object[] { userId, expectedOverallProgress });
-        when(progressRepository.findOverallProgressForUser(anyLong())).thenReturn(sampleData);
+        when(progressRepository.findOverallProgressForUser(anyLong(),anyLong())).thenReturn(sampleData);
 
         // When
-        List<Object[]> actualProgressList = progressRepository.findOverallProgressForUser(userId);
+        List<Object[]> actualProgressList = progressRepository.findOverallProgressForUser(userId,batchId);
 
         // Then
         assertEquals(1, actualProgressList.size());
@@ -54,15 +55,17 @@ public class ProgressRepositoryTest {
         // Given
         long userId = 1L;
         int courseId = 1;
+        long batchId = 1L;
+
         double expectedCourseProgress = 70.0;
     
         // Mock the repository method call to return sample data
         List<Object[]> sampleData = new ArrayList<>();
         sampleData.add(new Object[] { courseId, userId, expectedCourseProgress });
-        when(progressRepository.findCourseProgressByUserAndCourse(anyLong(), anyInt())).thenReturn(sampleData);
+        when(progressRepository.findCourseProgressByUserAndCourse(anyLong(),anyLong(), anyInt())).thenReturn(sampleData);
     
         // When
-        List<Object[]> actualProgressList = progressRepository.findCourseProgressByUserAndCourse(userId, courseId);
+        List<Object[]> actualProgressList = progressRepository.findCourseProgressByUserAndCourse(userId,batchId, courseId);
     
         // Then
         assertEquals(1, 1); 
@@ -77,15 +80,17 @@ public class ProgressRepositoryTest {
         long userId = 1L;
         int courseId = 1;
         int topicId = 1;
+        long batchId = 1L;
+
         double expectedTopicProgress = 75.0;
 
         // Mock the repository method call to return sample data
         List<Object[]> sampleData = new ArrayList<>();
         sampleData.add(new Object[] { userId, courseId, topicId, expectedTopicProgress });
-        when(progressRepository.findTopicProgressByTopicAndUserId(anyLong(), anyLong())).thenReturn(sampleData);
+        when(progressRepository.findTopicProgressByTopicAndUserId(anyLong(),anyLong(), anyLong())).thenReturn(sampleData);
 
         // When
-        List<Object[]> actualProgressList = progressRepository.findTopicProgressByTopicAndUserId(userId, topicId);
+        List<Object[]> actualProgressList = progressRepository.findTopicProgressByTopicAndUserId(userId,batchId, topicId);
 
         // Then
         assertEquals(1, actualProgressList.size());

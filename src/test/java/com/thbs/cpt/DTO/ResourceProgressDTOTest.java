@@ -20,6 +20,8 @@ public class ResourceProgressDTOTest {
         Double progress1 = 0.75;
         Long resourceId2 = 2L;
         Double progress2 = 0.50;
+        long batchId = 1L;
+
 
         // When
         progressDTO.addProgress(resourceId1, progress1);
@@ -69,9 +71,11 @@ public class ResourceProgressDTOTest {
     public void testAllArgsConstructorAndGetters() {
         // Test all-args constructor and getters
         Long topicId = 1L;
+        long batchId = 1L;
+
         Map<Long, Double> resourceMap = new HashMap<>();
         resourceMap.put(2L, 0.75);
-        ResourceProgressDTO dto = new ResourceProgressDTO(topicId, resourceMap);
+        ResourceProgressDTO dto = new ResourceProgressDTO(topicId,batchId, resourceMap);
 
         assertEquals(topicId, dto.getTopicId());
         assertEquals(resourceMap, dto.getResourceMap());

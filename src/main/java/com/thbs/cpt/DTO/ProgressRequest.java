@@ -13,5 +13,6 @@ import lombok.Setter;
 @Setter
 public class ProgressRequest {
     private long userId;
+    private long batchId;
     private List<Long> courseIds;
 }

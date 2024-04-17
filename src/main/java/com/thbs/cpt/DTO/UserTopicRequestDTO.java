@@ -14,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserTopicRequestDTO {
     private Long userId;
+    private Long batchId;
     private List<Long> topicIds;
 
     

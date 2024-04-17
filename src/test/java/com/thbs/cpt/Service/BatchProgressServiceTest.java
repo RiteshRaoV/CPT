@@ -64,16 +64,16 @@ class BatchProgressServiceTest {
         when(batchProgressRepository.findAllUsers(batchId)).thenReturn(users);
 
         // Mocking user progress calculation
-        when(userProgressService.calculateOverallProgressForUser(1L)).thenReturn(new UserProgressDTO());
+        when(userProgressService.calculateOverallProgressForUser(1L,1L)).thenReturn(new UserProgressDTO());
 
         List<UserBatchProgressDTO> result = batchProgressService.calculateOverallBatchProgressAllUsers(batchId);
 
         // Assertions
         assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getUserId());
+        assertEquals(1L, result.get(0).getEmployeeId());
         assertNotNull(result.get(0).getOverallProgress());
         verify(batchProgressRepository, times(1)).findAllUsers(batchId);
-        verify(userProgressService, times(1)).calculateOverallProgressForUser(1L);
+        verify(userProgressService, times(1)).calculateOverallProgressForUser(1L,1L);
     }
 
     @Test
@@ -162,8 +162,8 @@ class BatchProgressServiceTest {
         when(batchProgressRepository.findAllUsers(batchId)).thenReturn(users);
 
         // Mock calculateOverallProgressForUser for each user ID
-        when(userProgressService.calculateOverallProgressForUser(1L)).thenReturn(new UserProgressDTO(1L, 50));
-        when(userProgressService.calculateOverallProgressForUser(2L)).thenReturn(new UserProgressDTO(2L, 75));
+        when(userProgressService.calculateOverallProgressForUser(1L,1L)).thenReturn(new UserProgressDTO(1L, 50));
+        when(userProgressService.calculateOverallProgressForUser(2L,1L)).thenReturn(new UserProgressDTO(2L, 75));
 
         // Execute the method under test
         List<UserBatchProgressDTO> result = batchProgressService.calculateOverallBatchProgressAllUsers(batchId);

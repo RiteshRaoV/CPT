@@ -15,6 +15,7 @@ import java.util.Map;
 public class ResourceProgressDTO {
 
     private Long topicId;
+    private Long batchId;
     private Map<Long, Double> ResourceMap = new HashMap<>(); // Changed field name to ResourceMap
 
     public void addProgress(Long resourceId, Double progress) {

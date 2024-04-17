@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.thbs.cpt.DTO.CourseDTO;
 import com.thbs.cpt.DTO.ProgressDTO;
@@ -30,18 +28,16 @@ public class UserProgressService {
 
     @Autowired
     private ProgressRepository progressRepository;
-    
-    @Autowired
-    private RestTemplate restTemplate;
 
 
-    public UserProgressDTO calculateOverallProgressForUser(Long userId) throws UserNotFoundException {
-        List<Object[]> results = progressRepository.findOverallProgressForUser(userId);
+
+    public UserProgressDTO calculateOverallProgressForUser(Long userId,Long batchId) throws UserNotFoundException {
+        List<Object[]> results = progressRepository.findOverallProgressForUser(userId,batchId);
         if (results != null && !results.isEmpty()) {
             Object[] result = results.get(0);
             if (result[0] != null && result[1] != null) {
                 long userIdFromQuery = (long) result[0];
-                double overallProgress = (double) result[1];
+                double overallProgress = Math.round((double) result[1] * 100.0) / 100.0;
                 return new UserProgressDTO(userIdFromQuery, overallProgress);
             }
         } else {
@@ -50,9 +46,9 @@ public class UserProgressService {
         return null;
     }
 
-    public UserCourseProgressDTO calculateCourseProgressForUser(Long userId, long courseId)
+    public UserCourseProgressDTO calculateCourseProgressForUser(Long userId,long batchId, long courseId)
             throws CourseNotFoundException {
-        List<Object[]> results = progressRepository.findCourseProgressByUserAndCourse(userId, courseId);
+        List<Object[]> results = progressRepository.findCourseProgressByUserAndCourse(userId,batchId, courseId);
         if (results != null && !results.isEmpty()) {
             Object[] result = results.get(0);
             if (result[1] != null && result[2] != null) {
@@ -66,9 +62,9 @@ public class UserProgressService {
         return null;
     }
 
-    public UserTopicProgressDTO calculateUserTopicProgress(Long userId, long topicId)
+    public UserTopicProgressDTO calculateUserTopicProgress(Long userId,long batchId, long topicId)
             throws TopicIdNotFoundException {
-        List<Object[]> results = progressRepository.findTopicProgressByTopicAndUserId(userId, topicId);
+        List<Object[]> results = progressRepository.findTopicProgressByTopicAndUserId(userId,batchId, topicId);
         if (results != null && !results.isEmpty()) {
             Object[] result = results.get(0);
             if (result[1] != null && result[2] != null) {
@@ -89,23 +85,36 @@ public class UserProgressService {
         throw new ResourceIdNotFoundException("Resource with ID " + resourceId + " not found for user " + userId);
     }
 
-    public ProgressDTO getUserProgress(Long userId, List<Long> courseIds) {
-        List<Object[]> results = progressRepository.getUserProgress(userId, courseIds);
-    
+    public ProgressDTO getUserProgress(Long userId,Long batchId, List<Long> courseIds) {
+        List<Object[]> results = progressRepository.getUserProgress(userId,batchId, courseIds);
+        List<Progress> user=progressRepository.findByUserIdAndBatchId(userId,batchId);
+        if(user.isEmpty()){
+            throw new UserNotFoundException("user not found in batch:" +batchId);
+        }
         ProgressDTO response = new ProgressDTO();
         response.setUserId(userId);
+        response.setBatchId(batchId);
         List<CourseDTO> courses = new ArrayList<>();
-    
+        
         for (Long courseId : courseIds) {
             CourseDTO courseDTO = new CourseDTO();
+            List<Object[]> progress=progressRepository.findCourseProgressByUserAndCourse(userId,batchId,courseId);
+            if(progress.isEmpty()){
+                throw new CourseNotFoundException("course with ID " + courseId + " not found");
+            }
+            Object[] result = progress.get(0);
+            if (result[0] != null && result[1] != null) {
+                double overallProgress = (double) result[2];
+                courseDTO.setCourseProgress(overallProgress);
+            }
             courseDTO.setCourseId(courseId);
             courseDTO.setTopics(new ArrayList<>());
             courses.add(courseDTO);
         }
     
         for (Object[] result : results) {
-            long courseId = (long) result[1];
-            long topicId = (long) result[2];
+            long courseId = (long) result[0];
+            long topicId = (long) result[1];
             double progressDouble = (double) result[3];
     
             // Find the corresponding courseDTO for the current courseId
@@ -134,20 +143,6 @@ public class UserProgressService {
         return null;
     }
     
-    // private CourseDTO findOrCreateCourse(List<CourseDTO> courses, long courseId,long userId) {
-    //     for (CourseDTO courseDTO : courses) {
-    //         if (courseDTO.getCourseId() == courseId) {
-    //             return courseDTO;
-    //         }
-    //     }
-    //     CourseDTO newCourseDTO = new CourseDTO();
-    //     newCourseDTO.setCourseId(courseId);
-    //     newCourseDTO.setTopics(new ArrayList<>());
-    //     UserCourseProgressDTO progress = calculateCourseProgressForUser(userId, courseId);
-    //     newCourseDTO.setCourseProgress(progress.getCourseProgress());
-    //     courses.add(newCourseDTO);
-    //     return newCourseDTO;
-    // }
 
     public void updateProgress(long userId, double resourceProgress, long resourceId) {
         Progress progress = progressRepository.findByUserIdAndResourceId(userId, resourceId);
@@ -155,10 +150,16 @@ public class UserProgressService {
         progressRepository.save(progress);
     }
 
-    public List<ResourceProgressDTO> findProgressByUserIdAndTopics(Long userId, List<Long> topicIds) {
-        List<Object[]> results = progressRepository.findProgressByUserIdAndTopics(userId, topicIds);
+    public List<ResourceProgressDTO> findProgressByUserIdAndTopics(Long userId,Long batchId, List<Long> topicIds) {
         Map<Long, ResourceProgressDTO> resourceProgressMap = new HashMap<>();
-        
+        List<Progress> user=progressRepository.findByUserIdAndBatchId(userId,batchId);
+        if(user.isEmpty()){
+            throw new UserNotFoundException("user not found in batch:" +batchId);
+        }
+        List<Object[]> results = progressRepository.findProgressByUserIdAndTopics(userId,batchId, topicIds);
+        if(results.isEmpty()){
+            throw new TopicIdNotFoundException("Topic not found");
+        }
         for (Object[] result : results) {
             Long resourceId = (Long) result[0];
             Double progressPercentage = (Double) result[1];
@@ -166,38 +167,13 @@ public class UserProgressService {
             
             ResourceProgressDTO progressDTO = resourceProgressMap.getOrDefault(topicId, new ResourceProgressDTO());
             progressDTO.setTopicId(topicId);
+            progressDTO.setBatchId(batchId);
             progressDTO.addProgress(resourceId, progressPercentage);
             resourceProgressMap.put(topicId, progressDTO);
         }
         
         return new ArrayList<>(resourceProgressMap.values());
     }
-    
-    
-    
-    // private void updateProgressForUsersInBatch(Long batchId) {
-    //     RestTemplate restTemplate=new RestTemplate();
 
-    //     String uri = "http://localhost:1111/batch/{batchId}/users";
-    //     // Make a REST API call to the User Module to get the list of user IDs in the batch
-    //     @SuppressWarnings("unchecked")
-    //     List<Long> userIds = restTemplate.getForObject(uri , List.class, batchId);
-     
-    //     // Retrieve the saved resources for the batch
-    //     List<Resource> resources = progressRepository.findByBatchId(batchId);
-     
-    //     // For each resource in the batch
-    //     for (Resource resource : resources) {
-    //         // For each user in the batch, set the completion percentage of the resource to 0
-    //         for (Long userId : userIds) {
-    //             Progress progress = new Progress();
-    //             progress.setUserId(userId);
-    //             progress.setBatchId(batchId);
-    //             progress.setResourceId(resource.getResourceId());
-    //             progress.setCompletionPercentage(0.0);
-    //             progressRepository.save(progress);
-    //         }
-    //     }
-    // }
     
 }

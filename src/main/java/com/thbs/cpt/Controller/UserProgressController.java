@@ -38,9 +38,9 @@ public class UserProgressController {
 
     // gives the overall progress of the user
     @Operation(summary = "gives the overall progress of the user")
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserProgressDTO> calculateOverallProgress(@PathVariable long userId) {
-        UserProgressDTO progress = userProgressService.calculateOverallProgressForUser(userId);
+    @GetMapping("/{userId}/batch/{batchId}")
+    public ResponseEntity<UserProgressDTO> calculateOverallProgress(@PathVariable long userId ,@PathVariable long batchId) {
+        UserProgressDTO progress = userProgressService.calculateOverallProgressForUser(userId,batchId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
         } else {
@@ -50,10 +50,10 @@ public class UserProgressController {
 
     // gives the course progress of the user in a particular course
     @Operation(summary = "gives the course progress of the user in a particular course")
-    @GetMapping("/{userId}/course/{courseId}")
+    @GetMapping("/{userId}/batch/{batchId}/course/{courseId}")
     public ResponseEntity<UserCourseProgressDTO> calculateOverallCourseProgress(@PathVariable long userId,
-            @PathVariable int courseId) {
-        UserCourseProgressDTO progress = userProgressService.calculateCourseProgressForUser(userId, courseId);
+            @PathVariable int courseId,@PathVariable long batchId) {
+        UserCourseProgressDTO progress = userProgressService.calculateCourseProgressForUser(userId,batchId, courseId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
         } else {
@@ -63,10 +63,10 @@ public class UserProgressController {
 
     // gives the progress of the user in a particular topic
     @Operation(summary = "gives the progress of the user in a particular topic")
-    @GetMapping("/{userId}/topic/{topicId}")
+    @GetMapping("/{userId}/batch/{batchId}/topic/{topicId}")
     public ResponseEntity<UserTopicProgressDTO> calculateOverallTopicProgress(@PathVariable long userId,
-            @PathVariable int topicId) {
-        UserTopicProgressDTO progress = userProgressService.calculateUserTopicProgress(userId, topicId);
+            @PathVariable int topicId,@PathVariable long batchId) {
+        UserTopicProgressDTO progress = userProgressService.calculateUserTopicProgress(userId,batchId, topicId);
         if (progress != null) {
             return ResponseEntity.ok(progress);
         } else {
@@ -92,7 +92,8 @@ public class UserProgressController {
     @Operation(summary = "gives the progress of a user in the courses and the topic progress within that course")
     @PostMapping("/course-progress")
     public ProgressDTO getUserProgress(@RequestBody ProgressRequest request) {
-        return userProgressService.getUserProgress(request.getUserId(), request.getCourseIds());
+        return userProgressService.getUserProgress(request.getUserId(),request.getBatchId(),
+         request.getCourseIds());
     }
 
     // to update the resource completion percentage of the user
@@ -113,7 +114,7 @@ public class UserProgressController {
     public List<ResourceProgressDTO> findProgressByUserIdAndTopics(@RequestBody UserTopicRequestDTO userTopicRequest) {
         Long userId = userTopicRequest.getUserId();
         List<Long> topicIds = userTopicRequest.getTopicIds();
-        return userProgressService.findProgressByUserIdAndTopics(userId, topicIds);
+        return userProgressService.findProgressByUserIdAndTopics(userId,userTopicRequest.getBatchId(),topicIds);
     }
 
 }

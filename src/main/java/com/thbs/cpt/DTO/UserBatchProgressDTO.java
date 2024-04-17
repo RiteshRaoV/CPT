@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserBatchProgressDTO {
-    private Long userId;
+    private Long employeeId;
     private double overallProgress;
 
 }

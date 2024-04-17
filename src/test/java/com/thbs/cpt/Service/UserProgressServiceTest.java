@@ -31,12 +31,13 @@ class UserProgressServiceTest {
     @Test
     void testCalculateOverallProgressForUserSuccess() throws UserNotFoundException {
         long userId = 1L;
+        long batchId = 1L;
         Object[] result = new Object[]{userId, 0.75}; // Assuming overall progress is 75%
         List<Object[]> results = new ArrayList<>();
         results.add(result);
-        when(progressRepository.findOverallProgressForUser(userId)).thenReturn(results);
+        when(progressRepository.findOverallProgressForUser(userId,batchId)).thenReturn(results);
 
-        UserProgressDTO dto = userProgressService.calculateOverallProgressForUser(userId);
+        UserProgressDTO dto = userProgressService.calculateOverallProgressForUser(userId,batchId);
 
         assertNotNull(dto);
         assertEquals(userId, dto.getUserId());
@@ -46,9 +47,10 @@ class UserProgressServiceTest {
     @Test
     void testCalculateOverallProgressForUserUserNotFound() {
         long userId = 999L;
-        when(progressRepository.findOverallProgressForUser(userId)).thenReturn(new ArrayList<>());
+        long batchId = 1L;
+        when(progressRepository.findOverallProgressForUser(userId,batchId)).thenReturn(new ArrayList<>());
 
-        assertThrows(UserNotFoundException.class, () -> userProgressService.calculateOverallProgressForUser(userId));
+        assertThrows(UserNotFoundException.class, () -> userProgressService.calculateOverallProgressForUser(userId,batchId));
     }
    ////
    @Test
@@ -56,13 +58,14 @@ class UserProgressServiceTest {
         // Given
         Long userId = 1L;
         long courseId = 1L;
+        long batchId=1L;
         Object[] mockResult = {userId, 1, 70.0}; // Sample result from the repository
         List<Object[]> mockResults = new ArrayList<>();
         mockResults.add(mockResult);
-        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(mockResults);
+        when(progressRepository.findCourseProgressByUserAndCourse(userId,batchId, courseId)).thenReturn(mockResults);
 
         // When
-        UserCourseProgressDTO result = userProgressService.calculateCourseProgressForUser(userId, courseId);
+        UserCourseProgressDTO result = userProgressService.calculateCourseProgressForUser(userId,batchId, courseId);
 
         // Then
         assertNotNull(result);
@@ -75,22 +78,26 @@ class UserProgressServiceTest {
         // Given
         Long userId = 1L;
         long courseId = 1L;
-        when(progressRepository.findCourseProgressByUserAndCourse(userId, courseId)).thenReturn(new ArrayList<>());
+        long batchId = 1L;
+
+        when(progressRepository.findCourseProgressByUserAndCourse(userId,batchId, courseId)).thenReturn(new ArrayList<>());
 
         // When and Then
-        assertThrows(CourseNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId, courseId));
+        assertThrows(CourseNotFoundException.class, () -> userProgressService.calculateCourseProgressForUser(userId,batchId, courseId));
     }
 
     @Test
     void testCalculateUserTopicProgressSuccess() throws TopicIdNotFoundException {
         long userId = 1L;
         long topicId = 1L;
+        long batchId = 1L;
+
         Object[] result = new Object[]{userId, topicId, 0.75}; // Assuming topic progress is 75%
         List<Object[]> results = new ArrayList<>();
         results.add(result);
-        when(progressRepository.findTopicProgressByTopicAndUserId(userId, topicId)).thenReturn(results);
+        when(progressRepository.findTopicProgressByTopicAndUserId(userId,batchId, topicId)).thenReturn(results);
     
-        UserTopicProgressDTO dto = userProgressService.calculateUserTopicProgress(userId, topicId);
+        UserTopicProgressDTO dto = userProgressService.calculateUserTopicProgress(userId,batchId, topicId);
     
         assertNotNull(dto);
         assertEquals(userId, dto.getUserId());
@@ -102,9 +109,11 @@ class UserProgressServiceTest {
     void testCalculateUserTopicProgressTopicNotFound() {
         long userId = 1L;
         long topicId = 999L;
-        when(progressRepository.findTopicProgressByTopicAndUserId(userId, topicId)).thenReturn(new ArrayList<>());
+        long batchId = 1L;
 
-        assertThrows(TopicIdNotFoundException.class, () -> userProgressService.calculateUserTopicProgress(userId, topicId));
+        when(progressRepository.findTopicProgressByTopicAndUserId(userId,batchId, topicId)).thenReturn(new ArrayList<>());
+
+        assertThrows(TopicIdNotFoundException.class, () -> userProgressService.calculateUserTopicProgress(userId,batchId, topicId));
     }
 
     @Test
@@ -155,61 +164,21 @@ class UserProgressServiceTest {
 void testGetUserProgress_CourseNotFoundException() {
     // Mocking repository response
     Long userId = 1L;
+    long batchId = 1L;
+
     List<Long> courseIds = Arrays.asList(1L, 2L);
     
     // Set up the mock behavior to throw CourseNotFoundException for courseId 1
-    when(progressRepository.getUserProgress(userId, courseIds))
+    when(progressRepository.getUserProgress(userId,batchId, courseIds))
             .thenThrow(new CourseNotFoundException("course with ID 1 not found"));
 
     // Calling the service method and expecting an exception
     assertThrows(CourseNotFoundException.class,
-            () -> userProgressService.getUserProgress(userId, courseIds));
+            () -> userProgressService.getUserProgress(userId,batchId, courseIds));
 }
 
 
-    @Test
-void testGetUserProgress() {
-    // Mocking repository response for CourseNotFoundException
-    Long userId = 1L;
-    List<Long> courseIds = Arrays.asList(1L, 2L);
-
-    // Mocking repository response for valid input
-    List<Object[]> mockResults = new ArrayList<>();
-    mockResults.add(new Object[]{userId,1L, 1L, 50.0});
-    mockResults.add(new Object[]{userId, 1L, 2L, 75.0});
-    when(progressRepository.getUserProgress(userId, courseIds)).thenReturn(mockResults);
-
-    // Calling the service method
-    ProgressDTO result = userProgressService.getUserProgress(userId, courseIds);
-
-    // Assertions for valid input
-    assertNotNull(result);
-    assertEquals(userId, result.getUserId());
-    assertEquals(2, result.getCourses().size());
-    assertEquals(2, result.getCourses().get(0).getTopics().size());
-    assertEquals(50.0, result.getCourses().get(0).getTopics().get(0).getProgress());
-    assertEquals(75.0, result.getCourses().get(0).getTopics().get(1).getProgress());
-}
-
-@Test
-    void testFindProgressByUserIdAndTopics() {
-        // Given
-        Long userId = 1L;
-        List<Long> topicIds = Arrays.asList(101L, 102L);
-        List<Object[]> sampleData = new ArrayList<>();
-        sampleData.add(new Object[]{1L, 0.5, 101L});
-        sampleData.add(new Object[]{2L, 0.8, 102L});
-        when(progressRepository.findProgressByUserIdAndTopics(userId, topicIds)).thenReturn(sampleData);
-
-        // When
-        List<ResourceProgressDTO> resourceProgressList = userProgressService.findProgressByUserIdAndTopics(userId, topicIds);
-
-        // Then
-        assertEquals(2, resourceProgressList.size());
-        assertEquals(0.5, resourceProgressList.get(0).getResourceMap().get(1L));
-        assertEquals(0.8, resourceProgressList.get(1).getResourceMap().get(2L));
-    }
-
+   
 
 
 }

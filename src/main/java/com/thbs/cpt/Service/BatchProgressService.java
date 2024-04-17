@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +61,7 @@ public class BatchProgressService {
             for (Object[] user : users) {
                 if (user[0] != null) {
                     Long userId = (Long) user[0];
-                    UserProgressDTO progress=userProgressService.calculateOverallProgressForUser(userId);
+                    UserProgressDTO progress=userProgressService.calculateOverallProgressForUser(userId,batchId);
                     progressList.add(new UserBatchProgressDTO(userId, progress.getOverallProgress()));
                 }
             }

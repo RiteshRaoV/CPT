@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.thbs.cpt.Entity.Progress;
@@ -14,82 +13,114 @@ import com.thbs.cpt.Entity.Resource;
 public interface ProgressRepository extends JpaRepository<Progress, Long> {
 
      // find overall progress of user
-     @Query(value = "SELECT user_id, AVG(course_progress) AS overall_progress " +
-               "FROM (" +
-               "   SELECT lr.course_id, p.user_id, AVG(p.completion_percentage) AS course_progress " +
-               "   FROM Progress p " +
-               "   JOIN Resource r ON p.resource_id = r.resource_id " +
-               "   JOIN learning_resource lr ON r.learning_resource_id = lr.learning_resource_id " +
-               "   WHERE p.user_id = :userId " +
-               "   GROUP BY lr.course_id, p.user_id " +
-               ") AS cp " +
-               "GROUP BY user_id", nativeQuery = true)
-     List<Object[]> findOverallProgressForUser(Long userId);
+     @Query(value = " SELECT  " +
+               " cp.user_id,  " +
+               " AVG(cp.course_progress) AS overall_progress " +
+               " FROM ( " +
+               "  SELECT  " +
+               "     lr.course_id,  " +
+               "     p.user_id,  " +
+               "     AVG(p.completion_percentage) AS course_progress " +
+               "  FROM  " +
+               "     Progress p  " +
+               "  JOIN  " +
+               "     Resource r ON p.resource_id = r.resource_id  " +
+               "  JOIN  " +
+               "     Learning_resource lr ON r.learning_resource_id = lr.learning_resource_id  " +
+               "  WHERE  " +
+               "     p.user_id = :userId " +
+               "     AND lr.batch_id = :batchId " +
+               " GROUP BY  " +
+               "    lr.course_id,  " +
+               "     p.user_id " +
+               "  ) AS cp " +
+               " GROUP BY  " +
+               " cp.user_id;", nativeQuery = true)
 
+     List<Object[]> findOverallProgressForUser(Long userId, Long batchId);
+
+     // ------------------------------------------changed---------------------------------------
      // Fetches the overall course progress of a user in a course
      @Query(value = "SELECT tp.course_id, tp.user_id, AVG(tp.topic_progress) AS course_progress " +
-               "FROM (" +
-               "   SELECT lr.course_id, lr.topic_id, p.user_id, AVG(p.completion_percentage) AS topic_progress " +
-               "   FROM Progress p " +
-               "   JOIN Resource r ON p.resource_id = r.resource_id " +
-               "   JOIN Learning_Resource lr ON r.learning_resource_id = lr.learning_resource_id " +
-               "   WHERE p.user_id = :userId AND lr.course_id = :courseId " +
-               "   GROUP BY lr.course_id, lr.topic_id, p.user_id" +
-               ") AS tp " +
-               "GROUP BY tp.course_id, tp.user_id", nativeQuery = true)
-     List<Object[]> findCourseProgressByUserAndCourse(Long userId, long courseId);
+               " FROM ( " +
+               "    SELECT lr.course_id, lr.topic_id, p.user_id, AVG(p.completion_percentage) AS topic_progress " +
+               "    FROM Progress p " +
+               "    JOIN Resource r ON p.resource_id = r.resource_id " +
+               "    JOIN Learning_Resource lr ON r.learning_resource_id = lr.learning_resource_id " +
+               "    WHERE lr.batch_id = :batchId " +
+               "      AND p.user_id = :userId " +
+               "      AND lr.course_id = :courseId " +
+               "    GROUP BY lr.course_id, lr.topic_id, p.user_id " +
+               " ) AS tp " +
+               " GROUP BY tp.course_id;", nativeQuery = true)
+     List<Object[]> findCourseProgressByUserAndCourse(Long userId, long batchId, long courseId);
 
+     // ---------------------------------------changed----------------------------------------------------
      // Fetches the overall topic progress of a user in a particular topic
-     @Query(value = "SELECT "+
-               " p.user_id, "+
-          "  lr.topic_id, "+
-          "  AVG(p.completion_percentage) AS progress "+
-          " FROM "+
-          "  progress p "+
-          " JOIN "+
-               " resource r ON p.resource_id = r.resource_id "+
-          " JOIN "+
-          "  Learning_resource lr ON r.learning_resource_id = lr.learning_resource_id "+
-          " WHERE "+
-          "  p.user_id = :userId "+
-          "  AND lr.topic_id = :topicId "+
-          " GROUP BY "+
-          "  p.user_id, "+
-          "  lr.course_id, "+
-          "  lr.topic_id;", nativeQuery = true)
-
-     List<Object[]> findTopicProgressByTopicAndUserId(Long userId, long topicId);
-
-
-     @Query(value = "SELECT " +
-               "p.user_id,lr.course_id,lr.topic_id, " +
+     @Query(value = " SELECT " +
+               " p.user_id, " +
+               " lr.topic_id, " +
                " AVG(p.completion_percentage) AS progress " +
                " FROM " +
                " progress p " +
                " JOIN " +
                " resource r ON p.resource_id = r.resource_id " +
-               " JOIN  " +
+               " JOIN " +
                " Learning_resource lr ON r.learning_resource_id = lr.learning_resource_id " +
                " WHERE " +
-               " p.user_id = :userId  " +
-               " AND lr.course_id in :courseIds " +
+               " p.user_id = :userId " +
+               " AND lr.topic_id = :topicId " +
+               " AND lr.batch_id = :batchId " +
                " GROUP BY " +
-               " p.user_id, lr.course_id, lr.topic_id", nativeQuery = true)
-     List<Object[]> getUserProgress(Long userId, List<Long> courseIds);
+               " p.user_id, " +
+               " lr.topic_id;", nativeQuery = true)
+     List<Object[]> findTopicProgressByTopicAndUserId(Long userId, long batchId, long topicId);
 
+     // -----------------------------changed----------------------------------------------------
+     @Query(value = "SELECT tp.course_id, tp.topic_id, tp.user_id, AVG(tp.topic_progress) AS topic_progress " +
+               " FROM ( " +
+               "    SELECT lr.course_id, lr.topic_id, p.user_id, AVG(p.completion_percentage) AS topic_progress " +
+               "    FROM Progress p " +
+               "    JOIN Resource r ON p.resource_id = r.resource_id " +
+               "    JOIN Learning_Resource lr ON r.learning_resource_id = lr.learning_resource_id " +
+               "    WHERE lr.batch_id = :batchId " +
+               "      AND p.user_id = :userId " +
+               "      AND lr.course_id IN :courseIds " +
+               "    GROUP BY lr.course_id, lr.topic_id, p.user_id " +
+               " ) AS tp " +
+               " GROUP BY tp.course_id, tp.topic_id, tp.user_id", nativeQuery = true)
+     List<Object[]> getUserProgress(Long userId, Long batchId, List<Long> courseIds);
+
+     // -----------------------------changed---------------------------------------------------
      // Fetches the progress of a user in a particular resource
      Progress findByUserIdAndResourceId(long userId, long resourceId);
 
-      @Query(value = "SELECT p.resource_id, p.completion_percentage, lr.topic_id " +
-               "FROM Progress p " +
-               "JOIN Resource r ON p.resource_id = r.resource_id " +
-               "JOIN Learning_Resource lr ON r.learning_resource_id = lr.learning_resource_id " +
-               "WHERE lr.topic_id IN :topicIds " +
-               "AND p.user_id = :userId " +
-               "ORDER BY lr.topic_id ASC",nativeQuery = true)
-     List<Object[]> findProgressByUserIdAndTopics(@Param("userId") Long userId,
-               @Param("topicIds") List<Long> topicIds);
+     @Query(value = " SELECT " +
+               "  p.resource_id,  " +
+               "  p.completion_percentage,  " +
+               "  lr.topic_id  " +
+               "  FROM " +
+               "   Progress p " +
+               "  JOIN  " +
+               "  Resource " +
+               " r ON p.resource_id= " +
+               "  r.resource_id  " +
+               "  JOIN " +
+               " Learning_Resource lr " +
+               " ON r.learning_resource_id= " +
+               " lr.learning_resource_id  " +
+               "  WHERE " +
 
-    List<Resource> findByBatchId(Long batchId);
+               "  lr.topic_id IN :topicIds  " +
+               "  AND p.user_id = :userId  " +
+               "  AND lr.batch_id = :batchId  " +
+               "  ORDER BY  " +
+               "  lr.topic_id ASC;", nativeQuery = true)
+     List<Object[]> findProgressByUserIdAndTopics(Long userId, Long batchId, List<Long> topicIds);
+// -----------------------------changed-----------------------------------------
+     List<Resource> findByBatchId(Long batchId);
+
+     List<Progress> findByUserIdAndBatchId(long userId, long batchId);
+
 
 }

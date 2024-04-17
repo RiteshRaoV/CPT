@@ -14,10 +14,12 @@ public class ProgressRequestTest {
     void testConstructorAndGetters() {
         // Create sample data
         long userId = 1L;
+        long batchId = 1L;
+
         List<Long> courseIds = Arrays.asList(1L, 2L, 3L);
 
         // Create a ProgressRequest object
-        ProgressRequest progressRequest = new ProgressRequest(userId, courseIds);
+        ProgressRequest progressRequest = new ProgressRequest(userId,batchId, courseIds);
 
         // Check if constructor and getters work correctly
         assertEquals(userId, progressRequest.getUserId());

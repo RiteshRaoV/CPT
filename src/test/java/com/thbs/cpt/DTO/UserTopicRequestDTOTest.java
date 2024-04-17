@@ -13,10 +13,12 @@ public class UserTopicRequestDTOTest {
     void testConstructorAndGetters() {
         // Create sample data
         Long userId = 1L;
+        long batchId = 1L;
+
         List<Long> topicIds = Arrays.asList(101L, 102L, 103L);
 
         // Create a UserTopicRequestDTO object using the constructor
-        UserTopicRequestDTO userTopicRequestDTO = new UserTopicRequestDTO(userId, topicIds);
+        UserTopicRequestDTO userTopicRequestDTO = new UserTopicRequestDTO(userId,batchId, topicIds);
 
         // Check if the constructor sets the fields correctly
         assertEquals(userId, userTopicRequestDTO.getUserId());
