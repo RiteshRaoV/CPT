@@ -3,8 +3,9 @@ package com.thbs.cpt.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -24,7 +25,6 @@ import com.thbs.cpt.Exception.CourseNotFoundException;
 import com.thbs.cpt.Exception.UserNotFoundException;
 import com.thbs.cpt.Repository.BatchProgressRepository;
 
-import ch.qos.logback.classic.Logger;
 
 @Service
 public class BatchProgressService {
@@ -34,6 +34,13 @@ public class BatchProgressService {
 
     @Autowired
     private UserProgressService userProgressService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+
+    @Value("${userModule.uri}")
+    String userModuleUri;
 
 
     public List<BatchWiseProgressDTO> findBatchwiseProgress() {
@@ -81,10 +88,9 @@ public class BatchProgressService {
         throw new BatchIdNotFoundException("Batch with ID " + batchId + " not found.");
     }
 
-    public List<UserBatchProgressDTO> calculateBuProgress(String buisnessUnit) {
-        String uri = "http://172.18.4.185:7001/user/byBusinessUnit/{buisnessUnit}";
-        RestTemplate restTemplate=new RestTemplate();
-        ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buisnessUnit);
+    public List<UserBatchProgressDTO> calculateBuProgress(String buName) {
+        String uri = userModuleUri;
+        ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buName);
         List<Long> userIds = response.getBody();
         List<Progress> users=new ArrayList<>();
         for(Long id:userIds){
@@ -106,16 +112,15 @@ public class BatchProgressService {
                 }
                 return userProgressList;
             } else {
-                throw new BatchIdNotFoundException("No progress found for users in batch with ID " + buisnessUnit);
+                throw new BatchIdNotFoundException("No progress found for users in batch with ID " + buName);
             }
         } else {
-            throw new BatchIdNotFoundException("No users found for batch with ID " + buisnessUnit);
+            throw new BatchIdNotFoundException("No users found for batch with ID " + buName);
         }
     }
     
     public BUProgressDTO findOverallBUProgress(String buName) {
-        String uri = "http://172.18.4.185:7001/user/byBusinessUnit/{buName}";
-        RestTemplate restTemplate = new RestTemplate();
+        String uri = userModuleUri;
         ResponseEntity<List<Long>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {}, buName);
         List<Long> userIds = response.getBody();
         List<Progress> users=new ArrayList<>();

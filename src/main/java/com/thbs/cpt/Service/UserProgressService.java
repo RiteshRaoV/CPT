@@ -31,10 +31,8 @@ public class UserProgressService {
     @Autowired
     private ProgressRepository progressRepository;
     
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+    @Autowired
+    private RestTemplate restTemplate;
 
 
     public UserProgressDTO calculateOverallProgressForUser(Long userId) throws UserNotFoundException {
